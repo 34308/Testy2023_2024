@@ -1,0 +1,14 @@
+{
+  "FactoryLinkDBConnection": {
+    "DataSource": "localhost\\sqljj",
+    "DataBase": "JJDB",
+    "WindowsAuthentication": false,
+    "ConnectionString": "Data Source=\"localhost\\sqljj\";Initial Catalog=JJDB;User=sa;Password = 5540;Persist Security Info=True;Pooling=False;TrustServerCertificate=true"
+  },
+  "jwtSettings": {
+    "Header": "HeaderAuthentication",
+    "SecretKey": "thereisnohopethereisonlydeath2332",
+    "Issuer": "JJApi",
+    "Audience": "Users"
+  }
+}

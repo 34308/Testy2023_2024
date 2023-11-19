@@ -1,0 +1,316 @@
+import React, {FC, useEffect, useRef, useState} from 'react';
+import {
+    Dimensions, FlatList, FlatListProps, Modal,
+    Image,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View, ScrollView
+} from 'react-native';
+import {COLORS} from '../Colors';
+import store from '../store';
+
+import CheckBox from '@react-native-community/checkbox';
+import {API_URL, NOINTERNET, ROUTE, SERVER_ERROR, TOURIST_SPOT} from "../actions";
+import axios from "axios";
+import {JwtDecodedResult, RouteInt} from "../Common/Interfaces";
+import jwtDecode from "jwt-decode";
+// @ts-ignore
+import Gallery from 'react-native-image-gallery/src/Gallery';
+import Comment from "./CommentsComponents/Comment";
+import CommentFillable from "./CommentsComponents/CommentFillable";
+
+const dimensions = Dimensions.get('window');
+const imageHeight = Math.round((dimensions.width * 9) / 16);
+const imageWidth = dimensions.width;
+
+interface Address {
+    Street: string,
+    City: string,
+    PostalCode: string,
+    Country: string,
+    Number: number,
+    TouristSpotId: number,
+}
+
+interface ImageInterface {
+    Id: number,
+    TouristSpotId: number,
+    Photo: string,
+}
+
+interface TouristSpotInterface {
+    Name: string,
+    Description: string,
+    Score: number,
+    Article:string,
+    Id: number,
+    IsVisited: boolean,
+    Address: Address
+    Images: ImageInterface[]
+}
+interface TouristDetailsProps {
+    Id:number
+    City:string
+}
+export function TouristSpotDetail(props:TouristDetailsProps) {
+    const childRef = useRef(null);
+
+    const [refreshing, setRefreshing] = useState<boolean>(false);
+    const [Token, setToken] = useState<JwtDecodedResult>(jwtDecode(store.getState().token));
+    const [touristSpot, setTouristSpot] = useState<TouristSpotInterface>({
+        Name: "",
+        Description: "",
+        Score: 0,
+        Id: 0,
+        Article:"",
+        IsVisited: false,
+        Address: {
+            Street: "",
+            City: "",
+            PostalCode: "",
+            Country: "",
+            Number: 0,
+            TouristSpotId: 0,
+        },
+        Images : []
+    });
+    const url = API_URL + TOURIST_SPOT + "TouristSpotsForCity/"+props.City+"/"+props.Id+"/true";
+    const [modalVisible, setModalVisible] = useState<boolean>(false);
+    const onRefresh = React.useCallback(async () => {
+        setRefreshing(true);
+
+        setTimeout(() => {
+            setRefreshing(false);
+        }, 1000);
+    }, []);
+
+
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                axios.post(url, {}).then((result) => {
+                    setTouristSpot(result.data.Data)
+                });
+            } catch (error) {
+                console.log('error', error);
+            }
+        };
+        fetchData();
+
+    }, [touristSpot.Name, url]);
+
+    function mapImagesToImageList(images:ImageInterface[]) {
+        return images.map(image => ({
+            source: {uri: image.Photo}
+        }));
+    }
+    return (
+        <View style={{flex: 1}}>
+            <ScrollView>
+                <View style={styles.container}>
+                    <View style={styles.column}>
+                        <Text style={styles.textTitle}>{touristSpot.Name}</Text>
+                    </View>
+                    <View style={[styles.imageContainer, styles.elevation]}>
+                        {touristSpot.Images == undefined ?
+                            <Image style={styles.image}
+                                   source={{uri: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/2048px-No_image_available.svg.png"}}/>
+                            :
+                            <Gallery
+                                style={styles.image}
+                                images={mapImagesToImageList(touristSpot.Images)}
+                            />}
+                    </View>
+
+                    <View style={styles.descContainer}>
+                        <Text style={styles.textDescTitle}>Opis</Text>
+                        <Text style={styles.textDesc}>{touristSpot.Description}</Text>
+                        <Text style={styles.textDesc}>{touristSpot.Article}</Text>
+                    </View>
+                    <Text style={styles.textTitle}>Komentarze:</Text>
+                    {store.getState().isLoggedIn ? (
+                        <View style={styles.button}>
+                            <TouchableOpacity disabled={!store.getState().isLoggedIn}
+                                              onPress={() => {
+                                                  setModalVisible(true)
+                                              }}>
+                                <View style={styles.rowButton}>
+                                    <Text style={styles.buttonText}>Dodaj Komentarz</Text>
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                    ) : null}
+                </View>
+                {touristSpot.Images == undefined ? null :
+                    <Comment ref={childRef} commentUrl={"Comment/AllComentsForSpot/" + touristSpot.Id}></Comment>}
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalVisible}
+                    onRequestClose={() => {
+                        setModalVisible(!modalVisible);
+                    }}>
+                    <CommentFillable touristSpottId={touristSpot.Id} CloseModal={() => {
+                       // childRef.current?.startFunction();
+                        setModalVisible(false);
+                    }}></CommentFillable>
+                </Modal>
+            </ScrollView>
+        </View>
+    );
+}
+
+const styles = StyleSheet.create({
+    main: {
+        backgroundColor: COLORS.second,
+    },
+    centeredView: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 22,
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: 'white',
+        borderRadius: 20,
+        padding: 35,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    container: {
+        justifyContent: 'center',
+        display: 'flex',
+        flexDirection: 'column',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        alignContent: 'center',
+        backgroundColor: 'white',
+        marginTop: 10,
+    },
+    column: {
+        justifyContent: 'center',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        alignContent: 'center',
+    },
+    row: {
+        justifyContent: 'flex-start',
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        alignContent: 'center',
+        marginTop: 20,
+        margin: 10,
+    },
+    counterText: {
+        textAlign: 'center',
+        fontSize: 22,
+        color: COLORS.second,
+        fontWeight: 800,
+        marginLeft: 20,
+        marginRight: 20,
+    },
+    icon: {
+        margin: 0,
+        fontSize: 30,
+        color: COLORS.second,
+    },
+    dishContainer: {
+        justifyContent: 'center',
+        display: 'flex',
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        alignContent: 'center',
+        backgroundColor: 'white',
+        margin: 0,
+    },
+    textTitle: {
+        fontSize: 24,
+        color: COLORS.second,
+        marginTop: 20,
+    },
+    textDesc: {
+        fontSize: 16,
+        color: 'black',
+    },
+    textDescTitle: {
+        fontSize: 20,
+        color: COLORS.second,
+        marginBottom: 10,
+    },
+    descContainer: {
+        borderBottomWidth: 1,
+        borderTopWidth: 1,
+        borderColor: COLORS.second,
+        borderRadius: 5,
+        padding: 10,
+        width: 350,
+        marginTop: 10,
+    },
+    textPrice: {
+        marginBottom: 20,
+        fontWeight: 800,
+        textAlign: 'center',
+        fontSize: 22,
+        color: COLORS.second,
+    },
+    imageContainer: {
+        justifyContent: 'center',
+        display: 'flex',
+        flexDirection: 'column',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        alignContent: 'center',
+        width: '100%',
+        height: imageHeight,
+    },
+    elevation: {
+        shadowColor: '#ff0000',
+        elevation: 20,
+    },
+    image: {
+        width: '100%',
+        height: imageHeight,
+        borderRadius: 5,
+        borderColor: COLORS.main,
+        borderWidth: 1,
+    },
+    button: {
+        justifyContent: 'center',
+        marginTop: 40,
+        width: 250,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: COLORS.second,
+    },
+    buttonText: {
+        textAlign: 'center',
+        color: 'white',
+        fontSize: 18,
+        marginLeft: 20,
+        fontWeight: '800',
+    },
+    buttonIcon: {
+        color: COLORS.second,
+        fontSize: 20,
+    },
+    rowButton: {
+        justifyContent: 'center',
+        display: 'flex',
+        flexDirection: 'row',
+    },
+});
+
