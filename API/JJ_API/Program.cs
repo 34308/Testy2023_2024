@@ -8,6 +8,10 @@ using JJ_API.Service;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+if (!File.Exists(PropertiesSingletonBase.path) && !File.Exists(PropertiesSingletonBase.pathBackup))
+{
+    PropertiesSingletonBase.Save(new PropertiesSingleton());
+}
 var properties = PropertiesSingletonBase.Load();
 PropertiesSingleton propertiesSingleton = properties as PropertiesSingleton;
 builder.Services.AddControllers();
