@@ -18,12 +18,16 @@ namespace JJ_API.Controllers
 
         private readonly ILogger<UserController> _logger;
 
-        public CommentController(ILogger<UserController> logger, IConfiguration configuration)
+        public CommentController(ILogger<UserController> logger, bool isTest=false)
         {
             _logger = logger;
             var properties = PropertiesSingletonBase.Load();
             PropertiesSingleton propertiesSingleton = properties as PropertiesSingleton;
             SqlServerSettings = propertiesSingleton.FactoryLinkDBConnection;
+            if (isTest)
+            {
+                SqlServerSettings.DataBase = "JJDBTests";
+            }
         }
 
         [HttpGet("AllComentsForSpot/{id}")]

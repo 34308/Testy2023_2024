@@ -54,7 +54,7 @@ namespace JJ_API.Service.Buisneess
         }
         internal static ApiResult<Results, object> CreateNotificationForCommenting(Notifications notification, int parentCommentId, SqlConnection connection, SqlTransaction transaction,int commentorId = 0)
         {
-            string q_insertNotification = "INSERT INTO [Notification] VALUES (@userid,@description,@date,0)";
+            string q_insertNotification = "INSERT INTO [Notification] ([UserId],[Description],[CreatedOn],[Checked]) OUTPUT Inserted.Id VALUES (@userid,@description,@date,0)";
             string message = "";
             string getUserId = "Select [UserId] FROM [Comment] WHERE Id=@id";
 
@@ -76,10 +76,10 @@ namespace JJ_API.Service.Buisneess
 
                 message = GetMessage(notification, message, commentorLogin, commentTitle);
 
-                int response = connection.Execute(q_insertNotification, new { userid = userId, description = message, date = DateTime.Now },transaction);
-                if (response == 1)
+               var response = connection.QueryFirstOrDefault<int>(q_insertNotification, new { userid = userId, description = message, date = DateTime.Now },transaction);
+                if (response > 0)
                 {
-                    return Response(Results.OK);
+                    return Response(Results.OK,response);
                 }
                 else
                 {
@@ -143,6 +143,11 @@ namespace JJ_API.Service.Buisneess
         {
             ApiResult<Results, object> result = Response(results);
             return new ApiResult<Results, object>(results, result.Message, notifications);
+        }
+        public static ApiResult<Results, object> Response(Results results, int id)
+        {
+            ApiResult<Results, object> result = Response(results);
+            return new ApiResult<Results, object>(results, result.Message, id);
         }
         public static ApiResult<Results, object> Response(Results results, string error)
         {

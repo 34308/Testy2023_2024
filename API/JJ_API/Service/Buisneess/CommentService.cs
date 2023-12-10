@@ -12,7 +12,7 @@ namespace JJ_API.Service.Buisneess
 {
     public static class CommentService
     {
-        private static async Task<bool> AsyncCalculateAndUpdateScore(int placeId, string connectionString)
+        public static async Task<int> AsyncCalculateAndUpdateScore(int placeId, string connectionString)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -21,10 +21,10 @@ namespace JJ_API.Service.Buisneess
                 if (spotscore > 0)
                 {
                     UpdateTouristSpotScore(placeId, spotscore, connection);
-                    return true;
+                    return spotscore;
                 }
             }
-            return false;
+            return 0;
         }
         private static int CalculateTouristSpotScore(int placeId, SqlConnection connection)
         {
@@ -46,7 +46,7 @@ namespace JJ_API.Service.Buisneess
             string q_updateScore = "UPDATE TouristSpot SET Score=@score WHERE Id=@id";
             try
             {
-                connection.Execute(q_updateScore,new {id=placeId,score=score });
+                connection.Execute(q_updateScore, new { id = placeId, score = score });
 
                 return true;
             }
@@ -64,12 +64,18 @@ namespace JJ_API.Service.Buisneess
             string q_getNumberOfChilderForComment = "SELECT COUNT(cm.Id) FROM " +
                 "Comment cm" +
                " WHERE  [ParentCommentId] = @parentid";
+            string q_checkIfTouristSpotExists = "SELECT id FROM TouristSpot WHERE id=@id";
             try
             {
 
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
                     connection.Open();
+                    var response = connection.QueryFirstOrDefault<int>(q_checkIfTouristSpotExists, new { id = id });
+                    if (response <= 0)
+                    {
+                        return Response(Results.NotFoundAnyTouristSpots);
+                    }
                     List<Comment> comments = connection.Query<Comment>(q_getCommentsForTouristSpot, new { id = id }).ToList();
                     foreach (var comment in comments)
                     {
@@ -91,11 +97,18 @@ namespace JJ_API.Service.Buisneess
             string q_getNumberOfChilderForComment = "SELECT COUNT(cm.Id) FROM " +
                "Comment cm" +
               " WHERE  [ParentCommentId] = @parentid";
+            string q_checkIfParentExist = "SELECT id FROM Comment WHERE Id=@id";
+
             try
             {
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
                     connection.Open();
+
+                    if (0 >= connection.QueryFirstOrDefault<int>(q_checkIfParentExist, new { id = id }))
+                    {
+                        return Response(Results.CommentNofound);
+                    }
                     List<Comment> comments = connection.Query<Comment>(q_getCommentForParrent, new { id = id }).ToList();
                     foreach (var comment in comments)
                     {
@@ -120,7 +133,7 @@ namespace JJ_API.Service.Buisneess
             }
             if (!isDescriptionClean)
             {
-                return Response(Results.CurseFoundInContent, badTitleWord);
+                return Response(Results.CurseFoundInContent, badDescription);
             }
             return Response(Results.OK);
         }
@@ -129,7 +142,12 @@ namespace JJ_API.Service.Buisneess
             string q_insertComment = "INSERT INTO Comment (Title,Description,Score,UserId,TouristSpotId,CreatedAt,ParentCommentId ) OUTPUT INSERTED.Id VALUES (@title,@description,@score,@userid,@touristspotid,@date,@commentforcommentid) ";
             try
             {
+                if (input == null)
+                {
+                    return Response(Results.InputIsNull);
+                }
                 if (!ValidateComment(input.Title, input.Description)) { return Response(Results.CommentNotValid); }
+                if (!ValidateScore(input.Score)) { return Response(Results.CommentNotValid); }
                 ApiResult<Results, object> checkResult = CheckCommentContent(input);
                 if (checkResult.Status != 0)
                 {
@@ -144,16 +162,15 @@ namespace JJ_API.Service.Buisneess
                     }
                     using (SqlTransaction transaction = connection.BeginTransaction())
                     {
-
                         int result = connection.QueryFirstOrDefault<int>(q_insertComment, new { title = input.Title, description = input.Description, score = input.Score, userid = input.UserId, touristspotid = input.TouristSpotId, date = DateTime.Now, commentforcommentid = 0 }, transaction);
                         if (result == 0)
                         {
                             transaction.Rollback();
                             return Response(Results.ErrorDuringAddingNewComment);
                         }
-                        AsyncCalculateAndUpdateScore(input.TouristSpotId, connectionString);
                         transaction.Commit();
-                        return Response(Results.OK);
+                        AsyncCalculateAndUpdateScore(input.TouristSpotId, connectionString);
+                        return Response(Results.OK, result);
                     }
                 }
             }
@@ -162,11 +179,22 @@ namespace JJ_API.Service.Buisneess
                 return Response(Results.GeneralError, ex.Message);
             }
         }
+
+        private static ApiResult<Results, object> Response(object inputIsNull)
+        {
+            throw new NotImplementedException();
+        }
+
         public static ApiResult<Results, object> AddCommentForComment(CommentForCommentDto input, string connectionString)
         {
+            int id = 0;
             string q_insertComment = "INSERT INTO Comment (Title,Description,Score,UserId,TouristSpotId,CreatedAt,ParentCommentId ) OUTPUT INSERTED.Id VALUES (@title,@description,@score,@userid,@touristspotid,@date,@commentforcommentid) ";
             try
             {
+                if (input == null)
+                {
+                    return Response(Results.InputIsNull);
+                }
                 if (!ValidateComment(input.Title, input.Description)) { return Response(Results.CommentNotValid); }
                 ApiResult<Results, object> checkResult = CheckCommentContent(input);
                 if (checkResult.Status != 0)
@@ -183,8 +211,8 @@ namespace JJ_API.Service.Buisneess
                     using (SqlTransaction transaction = connection.BeginTransaction())
                     {
 
-                        int result = connection.QueryFirstOrDefault<int>(q_insertComment, new { title = input.Title, description = input.Description, score = input.Score, userid = input.UserId, touristspotid = input.TouristSpotId, date = DateTime.Now, commentforcommentid = input.ParentCommentId }, transaction);
-                        if (result == 0)
+                        id = connection.QueryFirstOrDefault<int>(q_insertComment, new { title = input.Title, description = input.Description, score = input.Score, userid = input.UserId, touristspotid = input.TouristSpotId, date = DateTime.Now, commentforcommentid = input.ParentCommentId }, transaction);
+                        if (id == 0)
                         {
                             transaction.Rollback();
                             return Response(Results.ErrorDuringAddingNewComment);
@@ -201,7 +229,7 @@ namespace JJ_API.Service.Buisneess
                             }
                         }
                         transaction.Commit();
-                        return Response(Results.OK);
+                        return Response(Results.OK,id);
                     }
                 }
             }
@@ -215,6 +243,10 @@ namespace JJ_API.Service.Buisneess
             string q_updateComment = "UPDATE Comment SET Title=@title,Description=@description,Score=@score,UpdatedAt=@date WHERE Id=@id";
             try
             {
+                if (input == null)
+                {
+                    return Response(Results.InputIsNull);
+                }
                 if (!ValidateComment(input.Title, input.Description)) { return Response(Results.OK); }
                 ApiResult<Results, object> checkResult = CheckCommentContent(input);
                 if (checkResult.Status != 0) { return checkResult; }
@@ -243,7 +275,7 @@ namespace JJ_API.Service.Buisneess
         }
         private static bool ValidateScore(int score)
         {
-            if (score == 0)
+            if (score == 0 || score > 5)
             {
                 return false;
             }
@@ -284,18 +316,19 @@ namespace JJ_API.Service.Buisneess
                 "AND userId = @userid;";
             try
             {
-                DateTime createdTime = connection.QueryFirstOrDefault<DateTime>(q_GetLastCreateDate, new { userid = userId });
+                DateTime createdTime = DateTime.Now;
                 int howMuchNewCommentsInLast2Minutes = connection.QueryFirstOrDefault<int>(q_countLast2MinComments, new { userid = userId, targetDate = createdTime });
-                if (howMuchNewCommentsInLast2Minutes > 3)
+                if (howMuchNewCommentsInLast2Minutes > 5)
                 {
                     return false;
                 }
+                return true;
             }
             catch (Exception ex)
             {
                 return false;
             }
-            return true;
+
         }
         public static ApiResult<Results, object> RemoveComment(int userId, List<int> Ids, string connectionString)
         {
@@ -329,14 +362,14 @@ namespace JJ_API.Service.Buisneess
                                     return Response(Results.ErrorDuringSendingNotification);
                                 }
                             }
-                            (int tsid,int pcid)= connection.QueryFirstOrDefault<(int,int)>(q_touristSpotIdAndParentCommentId, new { id = id }, transaction);
-                            if (pcid != 0 && pcid!=-1)
+                            (int tsid, int pcid) = connection.QueryFirstOrDefault<(int, int)>(q_touristSpotIdAndParentCommentId, new { id = id }, transaction);
+                            if (pcid != 0 && pcid != -1)
                             {
                                 AsyncCalculateAndUpdateScore(tsid, connectionString);
                             }
                         }
                         transaction.Commit();
-                       
+
                         return Response(Results.OK);
                     }
                 }
@@ -365,12 +398,19 @@ namespace JJ_API.Service.Buisneess
         }
         public static ApiResult<Results, object> GetAllCommentsForUser(int id, string connectionString)
         {
-            string q_getComments = "SELECT * FROM Comment WHERE UserId=@id";
+            string q_getComments = "SELECT * FROM [Comment] WHERE UserId=@id";
+            string q_checkUser = "SELECT id FROM [User] WHERE Id=@id";
+
             try
             {
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
                     connection.Open();
+                    var response = connection.QueryFirstOrDefault<int>(q_checkUser, new { id = id });
+                    if (response != id || response <= 0)
+                    {
+                        return Response(Results.UserNotFound);
+                    }
                     List<Comment> comments = connection.Query<Comment>(q_getComments, new { id = id }).ToList();
                     return Response(Results.OK, comments);
                 }
@@ -391,6 +431,11 @@ namespace JJ_API.Service.Buisneess
             ApiResult<Results, object> result = Response(results);
             return new ApiResult<Results, object>(results, result.Message, token);
         }
+        public static ApiResult<Results, object> Response(Results results, int id)
+        {
+            ApiResult<Results, object> result = Response(results);
+            return new ApiResult<Results, object>(results, result.Message, id);
+        }
         public static ApiResult<Results, object> Response(Results results)
         {
             string message = results switch
@@ -401,7 +446,8 @@ namespace JJ_API.Service.Buisneess
                 Results.ErrorDuringRemovingComments => "Error. While deleting Comments",
                 Results.CommentNotValid => "Comment not valid, check all values",
                 Results.TooManyCommentsPast2Min => "You can only add few comments per minute",
-                _ => null
+                Results.InputIsNull => "Input is null",
+                _ => ""
             };
 
             return new ApiResult<Results, object>(results, message);

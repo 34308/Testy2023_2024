@@ -75,7 +75,7 @@ namespace JJ_API.Service.Buisneess
             userId = connection.Query<int>(GetUserIdQuerry, new { login = registerModel.Login }, transaction).FirstOrDefault();
             connection.Execute(AddNewUserKeyQuery, new { userId, key }, transaction);
 
-            return Response(Results.OK);
+            return Response(Results.OK,userId);
 
         }
  
@@ -112,6 +112,12 @@ namespace JJ_API.Service.Buisneess
             var obj = new Dictionary<int, object>();
             obj.Add(0, register);
             return new ApiResult<Results, object>(results, result.Message, obj);
+        }
+        public static ApiResult<Results, object> Response(Results results, int id)
+        {
+            ApiResult<Results, object> result = Response(results);
+      
+            return new ApiResult<Results, object>(results, result.Message, id);
         }
     }
 

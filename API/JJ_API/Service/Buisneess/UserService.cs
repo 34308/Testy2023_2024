@@ -28,6 +28,45 @@ namespace JJ_API.Service.Buisneess
             }
 
         }
+        public static ApiResult<Results, object> RemoveUser(int userId, string SqlConnectionString)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(SqlConnectionString))
+                {
+                    connection.Open();
+                    using (SqlTransaction transaction = connection.BeginTransaction())
+                    {
+                        string q_removeUser = "DELETE FROM [USER] WHERE id=@id";
+                        var result = connection.Execute(q_removeUser, new {id=userId},transaction);
+                        if (result == 1)
+                        {
+                            transaction.Commit();
+
+                            return Response(Results.OK);
+                        }
+                        else if (result > 0)
+                        {
+                            transaction.Rollback();
+                            return Response(Results.ErrorDuringRemovingUser);
+                        }
+                        else
+                        {
+                            transaction.Rollback();
+
+                            return Response(Results.GeneralError);
+                        }
+                    }  
+                   
+                }
+            }
+            catch (Exception ex)
+            {
+                return Response(Results.GeneralError,ex);
+            }
+
+
+        }
         public static ApiResult<Results, object> UpdateUser(int userId, RegisterDto registerModel, SqlConnection connection, SqlTransaction transaction)
         {
             Random random = new Random();
@@ -151,7 +190,7 @@ namespace JJ_API.Service.Buisneess
                 Results.BadEmail => "Email isn't correct.",
                 Results.AvatarNotInserted => "Avatar has not been inserted properly",
                 Results.GeneralError => "General Error",
-                Results.IncorrectPasswordForUser=>"Niepoprawne hasło",
+                Results.IncorrectPasswordForUser => "Niepoprawne hasło",
                 _ => null
             };
 
@@ -180,7 +219,11 @@ namespace JJ_API.Service.Buisneess
             ApiResult<Results, object> result = Response(results);
             return new ApiResult<Results, object>(results, result.Message, register);
         }
-
+        public static ApiResult<Results, object> Response(Results results, Exception ex)
+        {
+            ApiResult<Results, object> result = Response(results);
+            return new ApiResult<Results, object>(results, result.Message, ex);
+        }
         internal static ApiResult<Results, object> ChangeUserPassword(int userId, ChangePasswordDto input, string connectionString)
         {
             string key;
@@ -256,7 +299,7 @@ namespace JJ_API.Service.Buisneess
                     }
                 }
                 string q_UpdateEmailQuery = "UPDATE [USER] SET Email=@email WHERE Id=@uid";
-               
+
                 int result = connection.Execute(q_UpdateEmailQuery, new
                 {
                     email = input.Email,
@@ -272,14 +315,14 @@ namespace JJ_API.Service.Buisneess
                 }
             }
         }
-        public static bool CheckPassword(string password,int userId,SqlConnection connection)
+        public static bool CheckPassword(string password, int userId, SqlConnection connection)
         {
             string q_CheckUserPassword = "SELECT Password FROM [USER] WHERE Id=@uid";
             string q_GetUserKey = "SELECT [Key] FROM [UserKey] WHERE userId=@uid";
 
-            string cryptedPassword = connection.QueryFirstOrDefault<string>(q_CheckUserPassword, new {uid=userId });
-            string key = connection.QueryFirstOrDefault<string>(q_GetUserKey, new {uid=userId });
-            if(EncryptionService.DecryptPassword(cryptedPassword, key) == password)
+            string cryptedPassword = connection.QueryFirstOrDefault<string>(q_CheckUserPassword, new { uid = userId });
+            string key = connection.QueryFirstOrDefault<string>(q_GetUserKey, new { uid = userId });
+            if (EncryptionService.DecryptPassword(cryptedPassword, key) == password)
             {
                 return true;
             }

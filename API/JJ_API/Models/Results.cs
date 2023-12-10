@@ -33,5 +33,10 @@
         ErrorDuringSendingNotification,
         TooManyCommentsPast2Min,
         CommentNotValid,
+        UserNotFound,
+        CommentNoFound,
+        CommentNofound,
+        InputIsNull,
+        ErrorDuringRemovingUser,
     }
 }

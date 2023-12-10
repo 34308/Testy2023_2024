@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using JJ_API.Service.Authenthication;
 using JJ_API.Models.DTO;
+using JJ_API.Models.DAO;
 
 namespace JJ_API.Controllers
 {
@@ -28,6 +29,29 @@ namespace JJ_API.Controllers
         public string GetTouristSpotsBasic()
         {
             return JsonConvert.SerializeObject(BasicTouristSpotService.GetAllBasicTouristSpots(SqlServerSettings.ConnectionString));
+        }
+        [HttpGet("AddTouristSpot")]
+        public string GetTouristSpot()
+        {
+            string _connectionString = "Data Source=\"localhost\\sqljj\";Initial Catalog=JJDBTests;User=sa;Password = 5540;Persist Security Info=True;Pooling=False;TrustServerCertificate=true";
+            //Arrange
+            CommentDto commentDto = new CommentDto();
+            commentDto.TouristSpotId = 1;
+            commentDto.Title = "Test";
+            commentDto.Description = "testDescription";
+            commentDto.Score = 5;
+            commentDto.UserId = 4;
+
+            CommentDto commentDto2 = new CommentDto();
+            commentDto.TouristSpotId = 1;
+            commentDto.Title = "Test";
+            commentDto.Description = "testDescription";
+            commentDto.Score = 5;
+            commentDto.UserId = 4;
+            //ACT
+            var resultAddComment = CommentService.AddComment(commentDto, _connectionString);
+            var resultAddComment2 = CommentService.AddComment(commentDto2, _connectionString);
+            return JsonConvert.SerializeObject(resultAddComment);
         }
         [HttpGet("TouristSpots")]
         public string GetTouristSpots()
@@ -86,6 +110,6 @@ namespace JJ_API.Controllers
         {
             return JsonConvert.SerializeObject(BasicTouristSpotService.GetAllVisitedTouristSpotsForUser(UserId, SqlServerSettings.ConnectionString));
         }
-       
+
     }
 }

@@ -18,13 +18,26 @@ namespace DandDu.Controllers
         JwtSettings JwtSettings=new JwtSettings();
         private readonly ILogger<UserController> _logger;
 
-        public UserController(ILogger<UserController> logger, IConfiguration configuration)
+        public UserController(ILogger<UserController> logger)
         {
             _logger = logger;
             var properties= PropertiesSingletonBase.Load();
             PropertiesSingleton propertiesSingleton = properties as PropertiesSingleton;
             SqlServerSettings = propertiesSingleton.FactoryLinkDBConnection;
             JwtSettings = propertiesSingleton.jwtSettings;
+        }
+        public UserController(ILogger<UserController> logger,bool testDatabase=false)
+        {
+            _logger = logger;
+            var properties = PropertiesSingletonBase.Load();
+            PropertiesSingleton propertiesSingleton = properties as PropertiesSingleton;
+            SqlServerSettings = propertiesSingleton.FactoryLinkDBConnection;
+            if (testDatabase)
+            {
+                this.SqlServerSettings.DataBase = "JJDBTests";
+            }
+            JwtSettings = propertiesSingleton.jwtSettings;
+
         }
         [HttpPost("SignUp")]
         public string SignUp([FromBody] RegisterDto input)

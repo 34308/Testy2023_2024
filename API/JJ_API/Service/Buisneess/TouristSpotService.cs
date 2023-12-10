@@ -27,7 +27,7 @@ namespace JJ_API.Service.Buisneess
                 return Response(Results.GeneralError, ex.Message);
             }
         }
-       
+
 
         public static ApiResult<Results, object> GetAllTouristSpotsForCity(string city, string connectionString)
         {
@@ -60,7 +60,7 @@ namespace JJ_API.Service.Buisneess
                     connection.Open();
 
                     TouristSpot touristSpot = connection.QueryFirstOrDefault<TouristSpot>(q_getTouristSpots, new { id = id });
-                    List<Image> photo= new List<Image>();
+                    List<Image> photo = new List<Image>();
                     if (!allPhotos)
                     {
                         photo = PhotoService.GetPhotoForTouristSpot(id, connectionString).Data as List<Image>;
@@ -85,10 +85,14 @@ namespace JJ_API.Service.Buisneess
                 return Response(Results.GeneralError, ex.Message);
             }
         }
-        public static ApiResult<Results, object> AddTouristSpots(List<TouristSpot> input, string connectionString)
+        public static ApiResult<Results, object> AddTouristSpots(TouristSpot input, string connectionString)
         {
-            string q_insertTouristSpots = "INSERT INTO TouristSpot (Name,Address,Website,Phone,Latitude,Longitude,OpenTime,CloseTime) " +
+            string q_insertTouristSpots = "INSERT INTO TouristSpot (Name,[AddressId],Website,Phone,Latitude,Longitude,OpenTime,CloseTime) OUTPUT Inserted.Id " +
                 "VALUES (@name,@address,@website,@phone,@latitude,@longitude,@opentime,@closetime)";
+            string q_addAdress = "INSERT INTO [Address] (Street,Number,City,PostalCode,Country,TouristSpotId) Values (@street,@number,@city,@postalcode,@country,@tsid)";
+            string q_addPhoto = "INSERT INTO [Photo] (TouristSpotId,Photo) Values (@tsid,@photo)";
+
+            int newId = 0;
             try
             {
                 using (SqlConnection connection = new SqlConnection(connectionString))
@@ -96,19 +100,40 @@ namespace JJ_API.Service.Buisneess
                     connection.Open();
                     using (SqlTransaction transaction = connection.BeginTransaction())
                     {
-                        foreach (TouristSpot t in input)
-                        {
-                            int result = connection.Execute(q_insertTouristSpots, new { name = t.Name, address = t.Address, website = t.Website, phone = t.Phone, latitude = t.Latitude, longitude = t.Longitude, opentime = t.OpenTime, closetime = t.CloseTime }, transaction);
-                            if (result != 1)
-                            {
-                                transaction.Rollback();
-                                return Response(Results.ErrorDuringAddingNewTouristSpots);
-                            }
-                        }
-                        transaction.Commit();
-                        return Response(Results.OK);
-                    }
 
+                        newId = connection.QueryFirstOrDefault<int>(q_insertTouristSpots, new
+                        {
+                            name = input.Name,
+                            address = 0,
+                            website = input.Website,
+                            phone = input.Phone,
+                            latitude = input.Latitude,
+                            longitude = input.Longitude,
+                            opentime = ""+input.OpenTime,
+                            closetime = "" + input.CloseTime
+                        }, transaction) ;
+                        if (newId <= 0)
+                        {
+                            transaction.Rollback();
+                            return Response(Results.ErrorDuringAddingNewTouristSpots);
+                        }
+                        connection.Execute(q_addAdress, new
+                        {
+                            street = input.Address.Street,
+                            number = input.Address.Number,
+                            city = input.Address.City,
+                            postalcode = input.Address.PostalCode,
+                            country = input.Address.Country,
+                            tsid = newId,
+                        }, transaction);
+                        foreach (Image image in input.Images)
+                        {
+                            connection.Execute(q_addPhoto, new { tsid = newId, photo = image.Photo }, transaction);
+                        }
+
+                        transaction.Commit();
+                        return Response(Results.OK, newId);
+                    }
 
                 }
             }
@@ -171,6 +196,12 @@ namespace JJ_API.Service.Buisneess
             ApiResult<Results, object> result = Response(results);
 
             return new ApiResult<Results, object>(results, result.Message, touristSpots);
+        }
+        public static ApiResult<Results, object> Response(Results results, int id)
+        {
+            ApiResult<Results, object> result = Response(results);
+
+            return new ApiResult<Results, object>(results, result.Message, id);
         }
         public static ApiResult<Results, object> Response(Results results, List<VisitedTouristSpot> touristSpots)
         {

@@ -1,12 +1,12 @@
 ﻿namespace JJ_API.Service
 {
 
-    public class SqlServerSettings : IEquatable<SqlServerSettings>
+    public class  SqlServerSettings : IEquatable<SqlServerSettings>
     {
         private string user = string.Empty;
         private string pass = string.Empty;
         private string dataSource = string.Empty;
-        private string dataBase = string.Empty;
+        private static string dataBase = string.Empty;
         private bool windowsAuthentication = false;
 
         public SqlServerSettings()
@@ -14,15 +14,36 @@
             this.user = "sa";
             this.pass = "5540";
             this.dataSource = "localhost\\sqljj";
-            this.dataBase = "JJDB";
+            dataBase = "JJDB";
             this.windowsAuthentication = false;
+        }
+        public SqlServerSettings(bool production)
+        {
+            if (production)
+            {
+                this.user = "sa";
+                this.pass = "5540";
+                this.dataSource = "localhost\\sqljj";
+                dataBase = "JJDB";
+                this.windowsAuthentication = false;
+
+            }
+            else
+            {
+                this.user = "sa";
+                this.pass = "5540";
+                this.dataSource = "localhost\\sqljj";
+                dataBase = "JJDBTests";
+                this.windowsAuthentication = false;
+            }
+           
         }
         public SqlServerSettings(string user, string pass, string ds, string db, bool windowsAuthentication)
         {
             this.user = user;
             this.pass = pass;
             this.dataSource = ds;
-            this.dataBase = db;
+            dataBase = db;
             this.windowsAuthentication = windowsAuthentication;
         }
 
@@ -77,7 +98,7 @@
         }
         public SqlServerSettings Clone()
         {
-            return Clone(this.dataBase);
+            return Clone(dataBase);
         }
         public SqlServerSettings Clone(string Db)
         {
@@ -97,11 +118,11 @@
         }
         public bool Equals(SqlServerSettings other)
         {
-            return this.user == other.user && this.pass == other.pass && this.dataSource == other.dataSource && this.dataBase == other.dataBase && this.windowsAuthentication == other.windowsAuthentication;
+            return this.user == other.user && this.pass == other.pass && this.dataSource == other.dataSource && dataBase == dataBase && this.windowsAuthentication == other.windowsAuthentication;
         }
         public override int GetHashCode()
         {
-            return this.user.GetHashCode() ^ this.pass.GetHashCode() ^ this.dataBase.GetHashCode() ^ this.dataSource.GetHashCode() ^ this.windowsAuthentication.GetHashCode();
+            return this.user.GetHashCode() ^ this.pass.GetHashCode() ^ dataBase.GetHashCode() ^ this.dataSource.GetHashCode() ^ this.windowsAuthentication.GetHashCode();
         }
     }
 
