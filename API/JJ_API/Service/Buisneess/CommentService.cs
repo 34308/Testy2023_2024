@@ -139,7 +139,9 @@ namespace JJ_API.Service.Buisneess
         }
         public static ApiResult<Results, object> AddComment(CommentDto input, string connectionString)
         {
-            string q_insertComment = "INSERT INTO Comment (Title,Description,Score,UserId,TouristSpotId,CreatedAt,ParentCommentId ) OUTPUT INSERTED.Id VALUES (@title,@description,@score,@userid,@touristspotid,@date,@commentforcommentid) ";
+            string q_checkIfCanBeInserted = "SELECT Count(Id) FROM Comment WHERE UserId=@userid AND Score <> 0 AND Score IS NOT NULL AND (ParentCommentId IS NULL OR ParentCommentId=0)  AND TouristSpotId =@tsid";
+            string q_insertComment = "INSERT INTO Comment (Title,Description,Score,UserId,TouristSpotId,CreatedAt,ParentCommentId ) " +
+                "OUTPUT INSERTED.Id VALUES (@title,@description,@score,@userid,@touristspotid,@date,@commentforcommentid) ";
             try
             {
                 if (input == null)
@@ -162,6 +164,11 @@ namespace JJ_API.Service.Buisneess
                     }
                     using (SqlTransaction transaction = connection.BeginTransaction())
                     {
+                        int checkIfCanBeInserted = connection.QueryFirstOrDefault<int>(q_checkIfCanBeInserted, new { userid = input.UserId, tsid = input.TouristSpotId });
+                        if (checkIfCanBeInserted > 0)
+                        {
+                            return Response(Results.ScoreHasBeenAlreadyAdded);
+                        }
                         int result = connection.QueryFirstOrDefault<int>(q_insertComment, new { title = input.Title, description = input.Description, score = input.Score, userid = input.UserId, touristspotid = input.TouristSpotId, date = DateTime.Now, commentforcommentid = 0 }, transaction);
                         if (result == 0)
                         {
@@ -229,7 +236,7 @@ namespace JJ_API.Service.Buisneess
                             }
                         }
                         transaction.Commit();
-                        return Response(Results.OK,id);
+                        return Response(Results.OK, id);
                     }
                 }
             }
@@ -446,6 +453,7 @@ namespace JJ_API.Service.Buisneess
                 Results.ErrorDuringRemovingComments => "Error. While deleting Comments",
                 Results.CommentNotValid => "Comment not valid, check all values",
                 Results.TooManyCommentsPast2Min => "You can only add few comments per minute",
+                Results.ScoreHasBeenAlreadyAdded => "Already added score for this place",
                 Results.InputIsNull => "Input is null",
                 _ => ""
             };
