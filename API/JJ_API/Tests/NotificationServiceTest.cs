@@ -22,6 +22,7 @@ namespace JJ_API.Tests
         private int _touristSpotId = 0;
         NotificationService _notificationService;
         Mock<NotificationRespositoryInterface> _repositoryMock;
+        private CommentService _commentService;
         public TestContext TestContext
         {
             get { return _testContextInstance; }
@@ -32,7 +33,7 @@ namespace JJ_API.Tests
         {
             _notificationService = new NotificationService();
             _repositoryMock = new Mock<NotificationRespositoryInterface>();
-
+            _commentService = new CommentService(_notificationService);
             RegisterDto registerDto = new RegisterDto();
             registerDto.AvatarId = 1;
             registerDto.Email = "test@wp.pl";
@@ -90,7 +91,7 @@ namespace JJ_API.Tests
             commentDto.Score = 1;
             commentDto.UserId = this._userId;
 
-            var resultAddComment = CommentService.AddComment(commentDto, _connectionString);
+            var resultAddComment = _commentService.AddComment(commentDto, _connectionString);
             CommentForCommentDto commentDto2 = new CommentForCommentDto();
             commentDto2.TouristSpotId = this._touristSpotId;
             commentDto2.Title = "Test";
@@ -98,7 +99,7 @@ namespace JJ_API.Tests
             commentDto2.Score = 5;
             commentDto2.UserId = this._userId;
             commentDto2.ParentCommentId = (int)resultAddComment.Data;
-            var resultAddComment2 = CommentService.AddCommentForComment(commentDto2, _connectionString);
+            var resultAddComment2 = _commentService.AddCommentForComment(commentDto2, _connectionString);
 
             using (SqlConnection connection = new SqlConnection(this._connectionString))
             {
@@ -109,7 +110,7 @@ namespace JJ_API.Tests
 
                 Assert.AreEqual(0, (int)result.Status);
             }
-            var res = CommentService.RemoveComment(this._userId, new List<int> { (int)resultAddComment.Data, (int)resultAddComment2.Data }, _connectionString);
+            var res = _commentService.RemoveComment(this._userId, new List<int> { (int)resultAddComment.Data, (int)resultAddComment2.Data }, _connectionString);
 
         }
         [TestCategory("testNotification")]
@@ -151,7 +152,7 @@ namespace JJ_API.Tests
             commentDto.Description = "testDescription";
             commentDto.Score = 1;
             commentDto.UserId = this._userId2;
-            var resultAddComment = CommentService.AddComment(commentDto, _connectionString);
+            var resultAddComment = _commentService.AddComment(commentDto, _connectionString);
 
             CommentForCommentDto commentDto2 = new CommentForCommentDto();
             commentDto2.TouristSpotId = this._touristSpotId;
@@ -160,7 +161,7 @@ namespace JJ_API.Tests
             commentDto2.Score = 5;
             commentDto2.UserId = this._userId;
             commentDto2.ParentCommentId = (int)resultAddComment.Data;
-            var resultAddComment2 = CommentService.AddCommentForComment(commentDto2, _connectionString);
+            var resultAddComment2 = _commentService.AddCommentForComment(commentDto2, _connectionString);
 
             using (SqlConnection connection = new SqlConnection(this._connectionString))
             {
@@ -176,7 +177,7 @@ namespace JJ_API.Tests
             Assert.AreEqual(0, (int)response.Status);
             Assert.AreEqual(this._userId2, ((List<NotificationDao>)response.Data)[0].UserId);
 
-            var res = CommentService.RemoveComment(this._userId, new List<int> { (int)resultAddComment.Data, (int)resultAddComment2.Data }, _connectionString);
+            var res = _commentService.RemoveComment(this._userId, new List<int> { (int)resultAddComment.Data, (int)resultAddComment2.Data }, _connectionString);
 
         }
         [TestCategory("testNotification")]
@@ -209,7 +210,7 @@ namespace JJ_API.Tests
             commentDto.Description = "testDescription";
             commentDto.Score = 1;
             commentDto.UserId = this._userId2;
-            var resultAddComment = CommentService.AddComment(commentDto, _connectionString);
+            var resultAddComment = _commentService.AddComment(commentDto, _connectionString);
 
             CommentForCommentDto commentDto2 = new CommentForCommentDto();
             commentDto2.TouristSpotId = this._touristSpotId;
@@ -218,7 +219,7 @@ namespace JJ_API.Tests
             commentDto2.Score = 5;
             commentDto2.UserId = this._userId;
             commentDto2.ParentCommentId = (int)resultAddComment.Data;
-            var resultAddComment2 = CommentService.AddCommentForComment(commentDto2, _connectionString);
+            var resultAddComment2 = _commentService.AddCommentForComment(commentDto2, _connectionString);
 
             using (SqlConnection connection = new SqlConnection(this._connectionString))
             {
@@ -232,7 +233,7 @@ namespace JJ_API.Tests
 
             }
 
-            var res = CommentService.RemoveComment(this._userId, new List<int> { (int)resultAddComment.Data, (int)resultAddComment2.Data }, _connectionString);
+            var res = _commentService.RemoveComment(this._userId, new List<int> { (int)resultAddComment.Data, (int)resultAddComment2.Data }, _connectionString);
 
         }
         [TestCategory("testNotification")]
