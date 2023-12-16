@@ -164,7 +164,7 @@ namespace JJ_API.Service.Buisneess
                     }
                     using (SqlTransaction transaction = connection.BeginTransaction())
                     {
-                        int checkIfCanBeInserted = connection.QueryFirstOrDefault<int>(q_checkIfCanBeInserted, new { userid = input.UserId, tsid = input.TouristSpotId });
+                        int checkIfCanBeInserted = connection.QueryFirstOrDefault<int>(q_checkIfCanBeInserted, new { userid = input.UserId, tsid = input.TouristSpotId },transaction);
                         if (checkIfCanBeInserted > 0)
                         {
                             return Response(Results.ScoreHasBeenAlreadyAdded);
@@ -228,12 +228,12 @@ namespace JJ_API.Service.Buisneess
 
                         if (input.ParentCommentId != 0)
                         {
-                            var resopnse = NotificationService.CreateNotificationForCommenting(NotificationService.Notifications.SomeoneCommentYourComment, input.ParentCommentId, connection, transaction, input.UserId);
-                            if (resopnse.Status != 0)
-                            {
-                                transaction.Rollback();
-                                return Response(Results.ErrorDuringSendingNotification);
-                            }
+                            //var resopnse = _notificationService.CreateNotificationForCommenting(NotificationService.Notifications.SomeoneCommentYourComment, input.ParentCommentId, connection, transaction, input.UserId);
+                            //if (resopnse.Status != 0)
+                            //{
+                            //    transaction.Rollback();
+                            //    return Response(Results.ErrorDuringSendingNotification);
+                            //}
                         }
                         transaction.Commit();
                         return Response(Results.OK, id);
@@ -282,7 +282,9 @@ namespace JJ_API.Service.Buisneess
         }
         private static bool ValidateScore(int score)
         {
-            if (score == 0 || score > 5)
+            int minimalScore = 1;
+            int maximalScore = 5;
+            if (score < minimalScore || score > maximalScore)
             {
                 return false;
             }
@@ -302,9 +304,9 @@ namespace JJ_API.Service.Buisneess
                 return true;
             }
         }
-        private static bool ValidateComment(string title, string comment, int score)
+        public static bool ValidateComment(string title, string comment, int score)
         {
-            if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(comment) || ValidateScore(score))
+            if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(comment) || !ValidateScore(score))
             {
                 return false;
             }
@@ -362,12 +364,12 @@ namespace JJ_API.Service.Buisneess
                             commentorId = connection.QueryFirstOrDefault<int>(q_getUserId, new { id = id }, transaction);
                             if (userId != commentorId)
                             {
-                                var resopnse = NotificationService.CreateNotificationForDeleting(NotificationService.Notifications.YourCommentHasBeenDeleted, id, commentorId, connection, transaction);
-                                if (resopnse.Status != 0)
-                                {
-                                    transaction.Rollback();
-                                    return Response(Results.ErrorDuringSendingNotification);
-                                }
+                                //    var resopnse = _notificationService.CreateNotificationForDeleting(NotificationService.Notifications.YourCommentHasBeenDeleted, id, commentorId, connection, transaction);
+                                //    if (resopnse.Status != 0)
+                                //    {
+                                //        transaction.Rollback();
+                                //        return Response(Results.ErrorDuringSendingNotification);
+                                //    }
                             }
                             (int tsid, int pcid) = connection.QueryFirstOrDefault<(int, int)>(q_touristSpotIdAndParentCommentId, new { id = id }, transaction);
                             if (pcid != 0 && pcid != -1)

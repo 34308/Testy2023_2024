@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.OpenApi.Models;
 using JJ_API;
 using JJ_API.Service;
+using JJ_API.Interfaces;
+using JJ_API.Service.Buisneess;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +20,8 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<ICommentServiceWrapper, CommentServiceWrapper>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 builder.Services.AddAuthentication("HeaderAuthentication")
     .AddScheme<HeaderAuthenticationOptions, HeaderAuthenticationHandler>("HeaderAuthentication", options =>

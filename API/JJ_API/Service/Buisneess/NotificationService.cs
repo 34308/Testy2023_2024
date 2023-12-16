@@ -5,39 +5,51 @@ using JJ_API.Models.DAO;
 using Microsoft.Data.SqlClient;
 using Microsoft.Win32;
 using JJ_API.Models.DAO;
+using JJ_API.Interfaces;
+using static JJ_API.Service.Buisneess.NotificationService;
 
 namespace JJ_API.Service.Buisneess
 {
-    public class NotificationService
+    public class NotificationService : INotificationService
     {
-        public static ApiResult<Results, object> GetNotificationForUser(int userId, string connectionString)
+        NotificationRespositoryInterface _notificationRepository;
+        public NotificationService()
         {
-            string q_getNotification = "SELECT * FROM Notification WHERE UserId = @userid AND Checked = 0";
+            this._notificationRepository = new NotificationRespository();
+        }
+        public NotificationService(NotificationRespositoryInterface notification)
+        {
+            this._notificationRepository = notification;
+        }
+        public ApiResult<Results, object> GetNotificationForUser(int userId, string connectionString)
+        {
             try
             {
-                using (SqlConnection connection = new SqlConnection(connectionString))
+                var res = _notificationRepository.GetNotificationForUser(userId, connectionString);
+                if (res.Count > 0)
                 {
-                    connection.Open();
-                    List<NotificationDao> notifications = connection.Query<NotificationDao>(q_getNotification, new { userid = userId }).ToList();
-                    return Response(Results.OK, notifications);
+                    return Response(Results.OK, res);
+
                 }
+                else
+                {
+                    return Response(Results.EmptyNotification, res);
+
+                }
+
             }
             catch (Exception ex)
             {
                 return Response(Results.GeneralError, ex.Message);
             }
         }
-        public static ApiResult<Results, object> SetNotificatioToChecked(int userId, int notificationId, string connectionString)
+        public ApiResult<Results, object> SetNotificatioToChecked(int userId, int notificationId, string connectionString)
         {
-            string q_getNotificationForId = "UPDATE Notification SET Checked = 1  WHERE UserId = @userid AND id = @id";
             try
             {
-                using (SqlConnection connection = new SqlConnection(connectionString))
-                {
-                    connection.Open();
-                    List<NotificationDao> notifications = connection.Query<NotificationDao>(q_getNotificationForId, new { userid = userId, id = notificationId }).ToList();
-                    return Response(Results.OK, notifications);
-                }
+                var res = _notificationRepository.UpdateNotificationForId(userId, notificationId, connectionString);
+                return Response(Results.OK, res);
+
             }
             catch (Exception ex)
             {
@@ -52,34 +64,30 @@ namespace JJ_API.Service.Buisneess
 
 
         }
-        internal static ApiResult<Results, object> CreateNotificationForCommenting(Notifications notification, int parentCommentId, SqlConnection connection, SqlTransaction transaction,int commentorId = 0)
+        public ApiResult<Results, object> CreateNotificationForCommenting(Notifications notification, int parentCommentId, SqlConnection connection, SqlTransaction transaction, int commentorId = 0)
         {
-            string q_insertNotification = "INSERT INTO [Notification] ([UserId],[Description],[CreatedOn],[Checked]) OUTPUT Inserted.Id VALUES (@userid,@description,@date,0)";
             string message = "";
-            string getUserId = "Select [UserId] FROM [Comment] WHERE Id=@id";
 
-            string getUserLogin = "Select [Login] FROM [User] WHERE id=@userid";
-            string getCommentTitle = "Select [Title] FROM [Comment] WHERE Id=id";
             string commentorLogin = "";
             string commentTitle = "";
             int userId = 0;
             try
             {
-              
+
                 if (commentorId != 0)
                 {
-                    commentorLogin = connection.QueryFirstOrDefault<string>(getUserLogin, new { userid = commentorId }, transaction);
+                    commentorLogin = _notificationRepository.GetUserLogin(commentorId, connection, transaction);
                 }
-                commentTitle = connection.QueryFirstOrDefault<string>(getCommentTitle, new { id =  parentCommentId }, transaction);
+                commentTitle = _notificationRepository.GetCommentTitle(parentCommentId, connection, transaction);
 
-                userId = connection.QueryFirstOrDefault<int>(getUserId, new { id = parentCommentId }, transaction);
+                userId = _notificationRepository.GetUserId(parentCommentId, connection, transaction);
 
                 message = GetMessage(notification, message, commentorLogin, commentTitle);
 
-               var response = connection.QueryFirstOrDefault<int>(q_insertNotification, new { userid = userId, description = message, date = DateTime.Now },transaction);
+                var response = _notificationRepository.InsertNotification(userId, message, transaction, connection);
                 if (response > 0)
                 {
-                    return Response(Results.OK,response);
+                    return Response(Results.OK, response);
                 }
                 else
                 {
@@ -92,7 +100,7 @@ namespace JJ_API.Service.Buisneess
                 return Response(Results.GeneralError, ex.Message);
             }
         }
-        internal static ApiResult<Results, object> CreateNotificationForDeleting(Notifications notification,int commentId,int userId, SqlConnection connection, SqlTransaction transaction)
+        public ApiResult<Results, object> CreateNotificationForDeleting(Notifications notification, int commentId, int userId, SqlConnection connection, SqlTransaction transaction)
         {
             string q_insertNotification = "INSERT INTO [Notification] VALUES (@userid,@description,@date,0)";
             string message = "";
@@ -101,7 +109,7 @@ namespace JJ_API.Service.Buisneess
             string commentTitle = "";
             try
             {
-               
+
                 commentTitle = connection.QueryFirstOrDefault<string>(getCommentTitle, new { id = commentId }, transaction);
                 message = GetMessage(notification, message, commentorLogin, commentTitle);
                 int response = connection.Execute(q_insertNotification, new { userid = userId, description = message, date = DateTime.Now }, transaction);
@@ -173,5 +181,6 @@ namespace JJ_API.Service.Buisneess
 
             return new ApiResult<Results, object>(results, message);
         }
+
     }
 }

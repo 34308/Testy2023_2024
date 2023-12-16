@@ -1,15 +1,26 @@
-﻿using DandDu.Controllers;
+﻿using Azure.Core;
+using DandDu.Controllers;
 using JJ_API.Controllers;
+using JJ_API.Interfaces;
 using JJ_API.Models;
 using JJ_API.Models.DAO;
 using JJ_API.Models.DTO;
 using JJ_API.Service;
 using JJ_API.Service.Buisneess;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using Newtonsoft.Json;
+using System.Security.Claims;
 using System.Text;
 using System.Xml.Linq;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using Results = JJ_API.Service.Buisneess.Results;
 
 namespace JJ_API.Tests
 {
@@ -19,26 +30,41 @@ namespace JJ_API.Tests
         private string _connectionString = "Data Source=\"localhost\\sqljj\";Initial Catalog=JJDBTests;User=sa;Password = 5540;Persist Security Info=True;Pooling=False;TrustServerCertificate=true";
         private int _userId = 0;
         private int _touristSpotId = 0;
+        HttpContext _mockHttpContext;
         string _token = "";
         static readonly HttpClient client = new HttpClient();
+        private ILogger<CommentController> _comemntlogger;
+        Mock<ICommentServiceWrapper> _mock = new Mock<ICommentServiceWrapper>();
+        Mock<INotificationService> _mockNotification = new Mock<INotificationService>();
+
 
         private ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
         {
             builder.AddConsole();
         });
-        UserController _userController;
         CommentController _commentController;
-        private TestContext _testContextInstance;
-        public TestContext TestContext
+        private HttpContext MockControllerContext(int userid)
         {
-            get { return _testContextInstance; }
-            set { _testContextInstance = value; }
+            var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+            {
+        new Claim(ClaimTypes.Email, "test@wp.pl"),
+        new Claim(JwtRegisteredClaimNames.Sub, "TestLogin"),
+        new Claim(JwtRegisteredClaimNames.Jti,""+userid ),
+        new Claim("role",""+1),
+                    }, "AuthenticationType"));
+
+            var httpContext = new Mock<HttpContext>();
+            httpContext.SetupGet(ctx => ctx.User).Returns(user);
+
+            return httpContext.Object;
         }
         [TestInitialize]
         public void Prepare()
         {
+
             SqlServerSettings sqlServerSettings = new SqlServerSettings();
             sqlServerSettings.DataBase = "JJDBTests";
+
             RegisterDto registerDto = new RegisterDto();
             registerDto.AvatarId = 1;
             registerDto.Email = "test@wp.pl";
@@ -47,6 +73,13 @@ namespace JJ_API.Tests
 
             var responseForAddingUser = RegistrationService.RegisterUser(registerDto, _connectionString);
             this._userId = (int)responseForAddingUser.Data;
+
+            this._comemntlogger = loggerFactory.CreateLogger<CommentController>();
+
+
+
+            _mockHttpContext = MockControllerContext(_userId);
+
 
             Image image = new Image();
             image.Photo = "www.photo.com";
@@ -66,11 +99,7 @@ namespace JJ_API.Tests
             signInDto.Login = "TestLogin";
 
             ILogger<UserController> logger = loggerFactory.CreateLogger<UserController>();
-
-            this._userController = new UserController(logger, true);
-
-            _token = ((ResultSignInDto)JsonConvert.DeserializeObject<ReadResponseClas>(_userController.SignIn(signInDto)).Data).Token;
-
+        
         }
         [TestCleanup]
         public void Clean()
@@ -79,33 +108,63 @@ namespace JJ_API.Tests
             TouristSpotService.RemoveTouristSpots(new List<int>() { _touristSpotId }, _connectionString);
         }
         [TestMethod]
-        public async Task AddCommentTestVerificationAsync()
+        public void AddCommentControllerTest()
         {
             CommentDto commentDto = new CommentDto();
             commentDto.TouristSpotId = this._touristSpotId;
-            commentDto.Title = "";
+            commentDto.Title = "Test";
             commentDto.Description = "testDescription";
             commentDto.Score = 1;
             commentDto.UserId = this._userId;
-            try
-            {
-                string json = JsonConvert.SerializeObject(commentDto);
-                var data = new StringContent(json, Encoding.UTF8, "application/json");
 
-                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", this._token);
+            _mock.Setup(service => service.AddComment(commentDto, _connectionString)).Returns(new ApiResult<Results, object>(Results.OK, 1));
+            _commentController = new CommentController(_comemntlogger, _mock.Object, true);
+            _commentController.ControllerContext = new Microsoft.AspNetCore.Mvc.ControllerContext() { HttpContext = _mockHttpContext };
 
-                HttpResponseMessage response = await client.PostAsync("https://localhost:7225/Comment/add/" + this._userId, data);
-                string responseContent = await response.Content.ReadAsStringAsync();
+            var resposnseString = (_commentController.AddComment(commentDto, _userId));
+            ReadResponseAddComment responseAddComment = JsonConvert.DeserializeObject<ReadResponseAddComment>(resposnseString);
 
-                var result = JsonConvert.DeserializeObject<Models.ApiResult<Service.Buisneess.Results, int>>(responseContent);
-                Assert.IsNotNull(result);
-                Assert.AreEqual(0, (int)result.Status);
-            }
-            catch (HttpRequestException e)
-            {
-                Console.WriteLine("\nException Caught!");
-                Console.WriteLine("Message :{0} ", e.Message);
-            }
+            Assert.IsNotNull(responseAddComment);
+            Assert.AreEqual((int)responseAddComment.Status, 0);
+
+        }
+        [TestMethod]
+        public void RemoveCommentController()
+        {
+
+            _mock.Setup(service => service.RemoveComment(this._userId, new List<int> { 1 }, _connectionString)).Returns(new ApiResult<Results, object>(Results.OK, 1));
+            _commentController = new CommentController(_comemntlogger, _mock.Object, true);
+            _commentController.ControllerContext = new Microsoft.AspNetCore.Mvc.ControllerContext() { HttpContext = _mockHttpContext };
+
+            var resposnseString = _commentController.RemoveComment(this._userId, 1);
+            var okResult = resposnseString as OkObjectResult;
+
+            Assert.IsNotNull(okResult);
+
+            string jsonString = okResult.Value as string;
+            var yourObject = JsonConvert.DeserializeObject<ReadResponseAddComment>(jsonString);
+
+            Assert.AreEqual((int)yourObject.Status, 0);
+
+        }
+        [TestMethod]
+        public void EditCommentController()
+        {
+            CommentDto commentDto = new CommentDto();
+            commentDto.TouristSpotId = this._touristSpotId;
+            commentDto.Title = "Diffrent";
+            commentDto.Description = "DiifrenttestDescription";
+            commentDto.Score = 2;
+            commentDto.UserId = this._userId;
+
+            _mock.Setup(service => service.EditComment(commentDto, _connectionString)).Returns(new ApiResult<Results, object>(Results.OK, 1));
+            _commentController = new CommentController(_comemntlogger, _mock.Object, true);
+            _commentController.ControllerContext = new Microsoft.AspNetCore.Mvc.ControllerContext() { HttpContext = _mockHttpContext };
+            var resposnseString = _commentController.UpdateComment(commentDto, _userId);
+            var yourObject = JsonConvert.DeserializeObject<ReadResponseAddComment>(resposnseString);
+
+            Assert.IsNotNull(yourObject);
+            Assert.AreEqual((int)yourObject.Status, 0);
 
         }
     }

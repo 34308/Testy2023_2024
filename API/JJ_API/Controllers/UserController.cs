@@ -7,6 +7,7 @@ using JJ_API.Models;
 using JJ_API.Service.Authenthication;
 using JJ_API.Models.DTO;
 using JJ_API.Configuration;
+using JJ_API.Interfaces;
 
 namespace DandDu.Controllers
 {
@@ -17,6 +18,7 @@ namespace DandDu.Controllers
         SqlServerSettings SqlServerSettings=new SqlServerSettings();
         JwtSettings JwtSettings=new JwtSettings();
         private readonly ILogger<UserController> _logger;
+        private readonly INotificationService _notificationService;
 
         public UserController(ILogger<UserController> logger)
         {
@@ -26,7 +28,7 @@ namespace DandDu.Controllers
             SqlServerSettings = propertiesSingleton.FactoryLinkDBConnection;
             JwtSettings = propertiesSingleton.jwtSettings;
         }
-        public UserController(ILogger<UserController> logger,bool testDatabase=false)
+        public UserController(ILogger<UserController> logger, INotificationService notiificationService, bool testDatabase=false)
         {
             _logger = logger;
             var properties = PropertiesSingletonBase.Load();
@@ -37,7 +39,7 @@ namespace DandDu.Controllers
                 this.SqlServerSettings.DataBase = "JJDBTests";
             }
             JwtSettings = propertiesSingleton.jwtSettings;
-
+            _notificationService = notiificationService;
         }
         [HttpPost("SignUp")]
         public string SignUp([FromBody] RegisterDto input)
@@ -122,14 +124,14 @@ namespace DandDu.Controllers
         [HttpGet("getUserNotifications/{UserId}")]
         public string GetUserNotifications([FromRoute]int userId)
         {
-            return JsonConvert.SerializeObject(NotificationService.GetNotificationForUser(userId, SqlServerSettings.ConnectionString));
+            return JsonConvert.SerializeObject(_notificationService.GetNotificationForUser(userId, SqlServerSettings.ConnectionString));
         }
         [Authorize]
         [AuthorizeUserId]
         [HttpGet("setUserNotification/{UserId}/{Nid}")]
         public string SetNotificatioToChecked([FromRoute] int UserId,int Nid)
         {
-            return JsonConvert.SerializeObject(NotificationService.SetNotificatioToChecked(UserId, Nid,SqlServerSettings.ConnectionString));
+            return JsonConvert.SerializeObject(_notificationService.SetNotificatioToChecked(UserId, Nid,SqlServerSettings.ConnectionString));
         }
         
     }

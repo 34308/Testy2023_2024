@@ -12,6 +12,8 @@ namespace JJ_API.Tests
     {
         private string _connectionString = "Data Source=\"localhost\\sqljj\";Initial Catalog=JJDBTests;User=sa;Password = 5540;Persist Security Info=True;Pooling=False;TrustServerCertificate=true";
         private int _userId = 0;
+        private int _userId2 = 0;
+
         private int _touristSpotId = 0;
         private TestContext _testContextInstance;
         public TestContext TestContext
@@ -28,8 +30,16 @@ namespace JJ_API.Tests
             registerDto.Login = "TestLogin";
             registerDto.Password = "Password123@";
 
+            RegisterDto registerDto2 = new RegisterDto();
+            registerDto2.AvatarId = 2;
+            registerDto2.Email = "test23@wp.pl";
+            registerDto2.Login = "Test22Login";
+            registerDto2.Password = "Password1223@";
             var responseForAddingUser = RegistrationService.RegisterUser(registerDto, _connectionString);
             this._userId = (int)responseForAddingUser.Data;
+            var responseForAddingUser2 = RegistrationService.RegisterUser(registerDto2, _connectionString);
+
+            this._userId2 = (int)responseForAddingUser2.Data;
 
             Image image = new Image();
             image.Photo = "www.photo.com";
@@ -49,6 +59,8 @@ namespace JJ_API.Tests
         public void Clean()
         {
             UserService.RemoveUser(_userId, _connectionString);
+            UserService.RemoveUser(_userId2, _connectionString);
+
             TouristSpotService.RemoveTouristSpots(new List<int>() { _touristSpotId }, _connectionString);
 
         }
@@ -156,7 +168,7 @@ namespace JJ_API.Tests
             commentDto.Title = "Test";
             commentDto.Description = "testDescription";
             commentDto.Score = 5;
-            commentDto.UserId = 4;
+            commentDto.UserId = _userId;
 
             // Act
             var result = CommentService.AddComment(commentDto, _connectionString);
@@ -267,7 +279,7 @@ namespace JJ_API.Tests
             commentDto2.Title = "Test";
             commentDto2.Description = "testDescription";
             commentDto2.Score = 5;
-            commentDto2.UserId = this._userId;
+            commentDto2.UserId = this._userId2;
             //ACT
             var resultAddComment = CommentService.AddComment(commentDto, _connectionString);
             var resultAddComment2 = CommentService.AddComment(commentDto2, _connectionString);
@@ -310,7 +322,7 @@ namespace JJ_API.Tests
             commentDto2.Title = "Test";
             commentDto2.Description = "testDescription";
             commentDto2.Score = 5;
-            commentDto2.UserId = this._userId;
+            commentDto2.UserId = this._userId2;
             //Act
             var resultAddComment = CommentService.AddComment(commentDto, _connectionString);
             var resultAddComment2 = CommentService.AddComment(commentDto2, _connectionString);
@@ -406,6 +418,16 @@ namespace JJ_API.Tests
 
             CommentService.RemoveComment(this._userId, new List<int> { (int)resultAddComment.Data }, _connectionString);
         }
-        
+
+        [TestMethod]
+        public void ValidateCommentParts()
+        {
+            string title = "tytuł";
+            string description = "description";
+            int score = 1;
+            var resultValidate = CommentService.ValidateComment(title,description,score);
+            Assert.IsTrue(resultValidate);
+
+        }
     }
 }

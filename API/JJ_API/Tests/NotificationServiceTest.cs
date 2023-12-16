@@ -1,9 +1,14 @@
 ﻿using Dapper;
+using JJ_API.Interfaces;
 using JJ_API.Models.DAO;
 using JJ_API.Models.DTO;
 using JJ_API.Service.Buisneess;
+using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.Data.SqlClient;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using System.Data.Common;
+using System.Transactions;
 
 namespace JJ_API.Tests
 {
@@ -15,7 +20,8 @@ namespace JJ_API.Tests
         private int _userId = 0;
         private int _userId2 = 0;
         private int _touristSpotId = 0;
-
+        NotificationService _notificationService;
+        Mock<NotificationRespositoryInterface> _repositoryMock;
         public TestContext TestContext
         {
             get { return _testContextInstance; }
@@ -24,6 +30,9 @@ namespace JJ_API.Tests
         [TestInitialize]
         public void Prepare()
         {
+            _notificationService = new NotificationService();
+            _repositoryMock = new Mock<NotificationRespositoryInterface>();
+
             RegisterDto registerDto = new RegisterDto();
             registerDto.AvatarId = 1;
             registerDto.Email = "test@wp.pl";
@@ -55,7 +64,7 @@ namespace JJ_API.Tests
             var result = TouristSpotService.AddTouristSpots(touristSpot, _connectionString);
             _touristSpotId = (int)result.Data;
         }
-    
+
         [TestCleanup]
         public void Clean()
         {
@@ -63,7 +72,7 @@ namespace JJ_API.Tests
             UserService.RemoveUser(_userId2, _connectionString);
 
             TouristSpotService.RemoveTouristSpots(new List<int>() { _touristSpotId }, _connectionString);
-            using(SqlConnection connection = new SqlConnection(_connectionString))
+            using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
                 connection.Execute("TRUNCATE TABLE [Notification]");
@@ -72,7 +81,7 @@ namespace JJ_API.Tests
         }
         [TestCategory("testNotification")]
         [TestMethod]
-        public void TestCreateNotification()
+        public void TestCreateNotificationImpl()
         {
             CommentDto commentDto = new CommentDto();
             commentDto.TouristSpotId = this._touristSpotId;
@@ -91,16 +100,45 @@ namespace JJ_API.Tests
             commentDto2.ParentCommentId = (int)resultAddComment.Data;
             var resultAddComment2 = CommentService.AddCommentForComment(commentDto2, _connectionString);
 
-            using (SqlConnection connection=new SqlConnection(this._connectionString))
+            using (SqlConnection connection = new SqlConnection(this._connectionString))
             {
                 connection.Open();
                 SqlTransaction transaction = connection.BeginTransaction();
-                var result = NotificationService.CreateNotificationForCommenting(NotificationService.Notifications.SomeoneCommentYourComment, (int)resultAddComment.Data, connection,transaction,this._userId);
+                var result = _notificationService.CreateNotificationForCommenting(NotificationService.Notifications.SomeoneCommentYourComment, (int)resultAddComment.Data, connection, transaction, this._userId);
                 transaction.Commit();
 
                 Assert.AreEqual(0, (int)result.Status);
             }
             var res = CommentService.RemoveComment(this._userId, new List<int> { (int)resultAddComment.Data, (int)resultAddComment2.Data }, _connectionString);
+
+        }
+        [TestCategory("testNotification")]
+        [TestMethod]
+        public void TestCreateNotificationJed()
+        {
+
+            using (SqlConnection connection = new SqlConnection(this._connectionString))
+            {
+                connection.Open();
+                SqlTransaction transaction = connection.BeginTransaction();
+                _repositoryMock.Setup(repo => repo.GetUserLogin(this._userId, connection, transaction))
+                      .Returns("Login");
+                _repositoryMock.Setup(repo => repo.GetCommentTitle(1, connection, transaction))
+                      .Returns("Tytuł");
+                _repositoryMock.Setup(repo => repo.GetUserId(1, connection, transaction))
+                    .Returns(2);
+                _repositoryMock.Setup(repo => repo.InsertNotification(2, "Twój komentarz Tytuł został skomentowany przez: Login", transaction, connection))
+                    .Returns(1);
+                _notificationService = new NotificationService(_repositoryMock.Object);
+                var result = _notificationService.CreateNotificationForCommenting(NotificationService.Notifications.SomeoneCommentYourComment, 1, connection, transaction, this._userId);
+
+                _repositoryMock.Verify(repo => repo.GetUserLogin(this._userId, connection, transaction), Times.Once);
+                _repositoryMock.Verify(repo => repo.GetCommentTitle(1, connection, transaction), Times.Once);
+                _repositoryMock.Verify(repo => repo.GetUserId(1, connection, transaction), Times.Once);
+                _repositoryMock.Verify(repo => repo.InsertNotification(2, "Twój komentarz Tytuł został skomentowany przez: Login", transaction, connection), Times.Once);
+
+                Assert.AreEqual(0, (int)result.Status);
+            }
 
         }
         [TestCategory("testNotification")]
@@ -128,17 +166,37 @@ namespace JJ_API.Tests
             {
                 connection.Open();
                 SqlTransaction transaction = connection.BeginTransaction();
-                var result = NotificationService.CreateNotificationForCommenting(NotificationService.Notifications.SomeoneCommentYourComment, (int)resultAddComment.Data, connection, transaction, this._userId);
+                var result = _notificationService.CreateNotificationForCommenting(NotificationService.Notifications.SomeoneCommentYourComment, (int)resultAddComment.Data, connection, transaction, this._userId);
                 transaction.Commit();
                 Assert.AreEqual(0, (int)result.Status);
 
             }
-            var response=NotificationService.GetNotificationForUser(this._userId2,_connectionString);
+            var response = _notificationService.GetNotificationForUser(this._userId2, _connectionString);
             Assert.IsNotNull(response);
-            Assert.AreEqual(0,(int) response.Status);
+            Assert.AreEqual(0, (int)response.Status);
             Assert.AreEqual(this._userId2, ((List<NotificationDao>)response.Data)[0].UserId);
 
             var res = CommentService.RemoveComment(this._userId, new List<int> { (int)resultAddComment.Data, (int)resultAddComment2.Data }, _connectionString);
+
+        }
+        [TestCategory("testNotification")]
+        [TestMethod]
+        public void GetNotificationForUserJ()
+        {
+            NotificationDao notificationDao = new NotificationDao();
+            notificationDao.UserId = this._userId;
+            notificationDao.Checked = false;
+            notificationDao.Description = "test";
+            notificationDao.CreatedOn = DateTime.Now;
+            _repositoryMock.Setup(repo => repo.GetNotificationForUser(this._userId, _connectionString))
+                     .Returns(new List<NotificationDao>() { notificationDao });
+
+            _notificationService = new NotificationService(_repositoryMock.Object);
+            var response = _notificationService.GetNotificationForUser(this._userId, _connectionString);
+            _repositoryMock.Verify(repo => repo.GetNotificationForUser(this._userId, _connectionString), Times.Once);
+            Assert.IsNotNull(response);
+            Assert.AreEqual(0, (int)response.Status);
+            Assert.AreEqual(this._userId, ((List<NotificationDao>)response.Data)[0].UserId);
 
         }
         [TestCategory("testNotification")]
@@ -166,17 +224,27 @@ namespace JJ_API.Tests
             {
                 connection.Open();
                 SqlTransaction transaction = connection.BeginTransaction();
-                var result = NotificationService.CreateNotificationForCommenting(NotificationService.Notifications.SomeoneCommentYourComment, (int)resultAddComment.Data, connection, transaction, this._userId);
+                var result = _notificationService.CreateNotificationForCommenting(NotificationService.Notifications.SomeoneCommentYourComment, (int)resultAddComment.Data, connection, transaction, this._userId);
                 transaction.Commit();
                 Assert.AreEqual(0, (int)result.Status);
-                var resultForChecking= NotificationService.SetNotificatioToChecked(this._userId2,(int) result.Data,_connectionString);
+                var resultForChecking = _notificationService.SetNotificatioToChecked(this._userId2, (int)result.Data, _connectionString);
                 Assert.AreEqual(0, (int)resultForChecking.Status);
 
             }
-           
 
             var res = CommentService.RemoveComment(this._userId, new List<int> { (int)resultAddComment.Data, (int)resultAddComment2.Data }, _connectionString);
 
+        }
+        [TestCategory("testNotification")]
+        [TestMethod]
+        public void SetNotificationForCheckedJ()
+        {
+
+            _repositoryMock.Setup(repo => repo.SetNotificatioToChecked(this._userId2, 1, _connectionString))
+                .Returns(1);
+
+            var resultForChecking = _notificationService.SetNotificatioToChecked(this._userId2, 1, _connectionString);
+            Assert.AreEqual(0, (int)resultForChecking.Status);
         }
     }
 

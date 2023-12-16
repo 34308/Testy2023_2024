@@ -9,7 +9,8 @@ namespace JJ_API.Service.Buisneess
     {
         public static ApiResult<Results, object> GetAllCitys(string connectionString)
         {
-            string q_getAllCitys = "SELECT * FROM City ";
+            
+            var q_getAllCitys = "SELECT * FROM City ";
             try
             {
                 using (SqlConnection connection = new SqlConnection(connectionString))

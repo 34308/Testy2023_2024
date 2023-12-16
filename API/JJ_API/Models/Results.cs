@@ -38,6 +38,7 @@
         CommentNofound,
         InputIsNull,
         ErrorDuringRemovingUser,
-        ScoreHasBeenAlreadyAdded
+        ScoreHasBeenAlreadyAdded,
+        EmptyNotification
     }
 }

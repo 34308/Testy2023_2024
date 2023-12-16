@@ -21,11 +21,12 @@ namespace JJ_API.Tests
         }
 
         [TestMethod]
+        //arrange
         [DataRow(new string[] { })]
         [DataRow(null)]
         public void CheckWhatHappensForEmptyAndNull(string[] words)
         {
-            // Arrange
+
            
             // Act
             var result = CensorshipService.CheckForCurses(words);
