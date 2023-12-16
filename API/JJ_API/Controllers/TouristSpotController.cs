@@ -33,25 +33,7 @@ namespace JJ_API.Controllers
         [HttpGet("AddTouristSpot")]
         public string GetTouristSpot()
         {
-            string _connectionString = "Data Source=\"localhost\\sqljj\";Initial Catalog=JJDBTests;User=sa;Password = 5540;Persist Security Info=True;Pooling=False;TrustServerCertificate=true";
-            //Arrange
-            CommentDto commentDto = new CommentDto();
-            commentDto.TouristSpotId = 1;
-            commentDto.Title = "Test";
-            commentDto.Description = "testDescription";
-            commentDto.Score = 5;
-            commentDto.UserId = 4;
-
-            CommentDto commentDto2 = new CommentDto();
-            commentDto.TouristSpotId = 1;
-            commentDto.Title = "Test";
-            commentDto.Description = "testDescription";
-            commentDto.Score = 5;
-            commentDto.UserId = 4;
-            //ACT
-            var resultAddComment = CommentService.AddComment(commentDto, _connectionString);
-            var resultAddComment2 = CommentService.AddComment(commentDto2, _connectionString);
-            return JsonConvert.SerializeObject(resultAddComment);
+            return "";
         }
         [HttpGet("TouristSpots")]
         public string GetTouristSpots()

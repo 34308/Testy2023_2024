@@ -20,7 +20,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<ICommentServiceWrapper, CommentServiceWrapper>();
+builder.Services.AddScoped<ICommentServiceWrapper, CommentService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 
 builder.Services.AddAuthentication("HeaderAuthentication")
