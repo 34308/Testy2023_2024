@@ -132,15 +132,21 @@ namespace JJ_API.Tests
         }
         [TestCategory("GetCommentsForParent")]
         [TestMethod]
-        [DataRow(10)]
-        [DataRow(43)]
-        public void GetCommentsForParentPositive(int id)
+
+        public void GetCommentsForParentPositive()
         {
             // Arrange
 
+            CommentDto commentDto = new CommentDto();
+            commentDto.TouristSpotId = 1;
+            commentDto.Title = "Test";
+            commentDto.Description = "testDescription";
+            commentDto.Score = 5;
+            commentDto.UserId = _userId;
 
+            var resultAddComment = _commentService.AddComment(commentDto, _connectionString);
             // Act
-            var result = _commentService.GetCommentsForParent(id, _connectionString);
+            var result = _commentService.GetCommentsForParent((int)resultAddComment.Data, _connectionString);
 
             // Assert
             Assert.AreEqual(0, (int)result.Status);
@@ -390,12 +396,12 @@ namespace JJ_API.Tests
             var resultAddComment = _commentService.AddComment(commentDto, _connectionString);
 
             CommentDto editCommentDto = new CommentDto();
-            commentDto.TouristSpotId = this._touristSpotId;
-            commentDto.Title = "TestEdit";
-            commentDto.Description = "testDescriptionEdit";
-            commentDto.Score = 3;
-            commentDto.UserId = this._userId;
-
+            editCommentDto.TouristSpotId = this._touristSpotId;
+            editCommentDto.Title = "TestEdit";
+            editCommentDto.Description = "testDescriptionEdit";
+            editCommentDto.Score = 3;
+            editCommentDto.UserId = this._userId;
+            editCommentDto.Id = (int) resultAddComment.Data;
             var result= _commentService.EditComment(editCommentDto, _connectionString);
 
             Assert.AreEqual(0, (int)result.Status);
