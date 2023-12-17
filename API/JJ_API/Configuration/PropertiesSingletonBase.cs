@@ -7,8 +7,8 @@ namespace JJ_API.Service
     {
         public static PropertiesSingleton Properties { get; set; } = new PropertiesSingleton();
 
-        public readonly static string path = string.Format("C:\\Users\\Kamil\\source\\repos\\JJ_API\\properties.xml");
-        public readonly static string pathBackup = string.Format("C:\\Users\\Kamil\\source\\repos\\JJ_API\\propertiesBackup.xml");
+        public readonly static string path = string.Format("C:\\Users\\Kamil\\source\\repos\\Testy2023_2024\\API\\properties.xml");
+        public readonly static string pathBackup = string.Format("C:\\Users\\Kamil\\source\\repos\\Testy2023_2024\\API\\propertiesBackup.xml");
         protected internal static byte[] Encrypt(string code)
         {
             System.Security.Cryptography.DESCryptoServiceProvider crypt = new System.Security.Cryptography.DESCryptoServiceProvider();

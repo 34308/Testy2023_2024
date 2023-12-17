@@ -26,21 +26,22 @@ namespace DandDu.Controllers
             var properties= PropertiesSingletonBase.Load();
             PropertiesSingleton propertiesSingleton = properties as PropertiesSingleton;
             SqlServerSettings = propertiesSingleton.FactoryLinkDBConnection;
+            _notificationService=new NotificationService();
             JwtSettings = propertiesSingleton.jwtSettings;
         }
-        public UserController(ILogger<UserController> logger, INotificationService notiificationService, bool testDatabase=false)
-        {
-            _logger = logger;
-            var properties = PropertiesSingletonBase.Load();
-            PropertiesSingleton propertiesSingleton = properties as PropertiesSingleton;
-            SqlServerSettings = propertiesSingleton.FactoryLinkDBConnection;
-            if (testDatabase)
-            {
-                this.SqlServerSettings.DataBase = "JJDBTests";
-            }
-            JwtSettings = propertiesSingleton.jwtSettings;
-            _notificationService = notiificationService;
-        }
+        //public UserController(ILogger<UserController> logger, INotificationService notiificationService, bool testDatabase=false)
+        //{
+        //    _logger = logger;
+        //    var properties = PropertiesSingletonBase.Load();
+        //    PropertiesSingleton propertiesSingleton = properties as PropertiesSingleton;
+        //    SqlServerSettings = propertiesSingleton.FactoryLinkDBConnection;
+        //    if (testDatabase)
+        //    {
+        //        this.SqlServerSettings.DataBase = "JJDBTests";
+        //    }
+        //    JwtSettings = propertiesSingleton.jwtSettings;
+        //    _notificationService = notiificationService;
+        //}
         [HttpPost("SignUp")]
         public string SignUp([FromBody] RegisterDto input)
         {
@@ -50,7 +51,6 @@ namespace DandDu.Controllers
         [HttpPost("SignIn")]
         public string SignIn([FromBody] SignInDto input)
         {
-
             return JsonConvert.SerializeObject(SignInService.SignIn(input, SqlServerSettings.ConnectionString,JwtSettings.SecretKey,JwtSettings.Issuer,JwtSettings.Audience));
         }
         [Authorize]

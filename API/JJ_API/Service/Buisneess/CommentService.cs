@@ -238,7 +238,7 @@ namespace JJ_API.Service.Buisneess
                 {
                     return Response(Results.InputIsNull);
                 }
-                if (!ValidateComment(input.Title, input.Description)) { return Response(Results.OK); }
+                if (!ValidateComment(input.Title, input.Description)) { return Response(Results.CommentNotValid); }
                 ApiResult<Results, object> checkResult = CheckCommentContent(input);
                 if (checkResult.Status != 0) { return checkResult; }
 

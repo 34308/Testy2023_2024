@@ -1,9 +1,9 @@
 {
   "FactoryLinkDBConnection": {
     "DataSource": "localhost\\sqljj",
-    "DataBase": "JJDB",
+    "DataBase": "JJDBTests",
     "WindowsAuthentication": false,
-    "ConnectionString": "Data Source=\"localhost\\sqljj\";Initial Catalog=JJDB;User=sa;Password = 5540;Persist Security Info=True;Pooling=False;TrustServerCertificate=true"
+    "ConnectionString": "Data Source=\"localhost\\sqljj\";Initial Catalog=JJDBTests;User=sa;Password = 5540;Persist Security Info=True;Pooling=False;TrustServerCertificate=true"
   },
   "jwtSettings": {
     "Header": "HeaderAuthentication",

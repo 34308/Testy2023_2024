@@ -14,7 +14,7 @@
             this.user = "sa";
             this.pass = "5540";
             this.dataSource = "localhost\\sqljj";
-            dataBase = "JJDB";
+            dataBase = "JJDBTests";
             this.windowsAuthentication = false;
         }
         public SqlServerSettings(bool production)
@@ -24,7 +24,7 @@
                 this.user = "sa";
                 this.pass = "5540";
                 this.dataSource = "localhost\\sqljj";
-                dataBase = "JJDB";
+                dataBase = "JJDBTests";
                 this.windowsAuthentication = false;
 
             }
@@ -70,7 +70,7 @@
 
                 if (this.windowsAuthentication)
                 {
-                    connectionString = ("Server=tcp:jjserver.database.windows.net,1433;Initial Catalog=JJDB;Persist Security Info=False;User ID=jjsa;Password={your_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
+                    connectionString = ("Server=tcp:jjserver.database.windows.net,1433;Initial Catalog=JJDBTests;Persist Security Info=False;User ID=jjsa;Password={your_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
                 }
                 else
                 {

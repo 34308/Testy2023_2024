@@ -81,7 +81,7 @@ const Comment = forwardRef<ChildComponentHandles, CommentProps>(({commentUrl}, r
         fetchData();
     }, [url]);
 
-    function SaveEditedComment(item: CommentData) {
+    function SaveEditedComment(item: CommentData,i:number) {
         try {
 
             axios.post(API_URL + COMMENT + "update/" + Token?.jti,
@@ -95,6 +95,27 @@ const Comment = forwardRef<ChildComponentHandles, CommentProps>(({commentUrl}, r
                     "parentCommentId": 0
                 }
                 , {headers: {Authorization: store.getState().token}}).then((result) => {
+                    if(result.data.Status==0){
+                        showMessage({
+                            message: 'zmieniono poprawnie.',
+                            type: 'info',
+                            backgroundColor: COLORS.second,
+                            color: COLORS.main,
+                        });
+                        const temp = editable.slice(0);
+                        temp[i] = false;
+                        setEditable(temp)
+                    }else{
+                        if(result.data.Status==25){
+                            showMessage({
+                                message: 'znaleziono przekleństwo: '+ result.data.Data,
+                                type: 'info',
+                                backgroundColor: COLORS.second,
+                                color: COLORS.main,
+                            });
+                        }
+
+                    }
             });
         } catch (error) {
             console.log("error", error);
@@ -182,7 +203,7 @@ const Comment = forwardRef<ChildComponentHandles, CommentProps>(({commentUrl}, r
                                     </View>
                                     {editable[i] ?
                                         <TouchableOpacity disabled={!store.getState().isLoggedIn} onPress={() => {
-                                            SaveEditedComment(item)
+                                            SaveEditedComment(item,i)
                                         }} style={styles.button}><Text
                                             style={styles.buttonText}>Zapisz</Text></TouchableOpacity>
                                         :

@@ -146,7 +146,7 @@ export default function TouristSpotsList({navigation}) {
     }, [touristSpots]);
 
     useEffect(() => {
-        console.log("TOKEN:" + store.getState().token)
+        console.log("TOKEN1:" + store.getState().token)
         // dispatch({type: DELETEPINS});
         const fetchData = () => {
             try {
