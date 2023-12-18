@@ -1,3 +1,12 @@
+<h1>Testy 2023/2024 </h1>
+<h2>Opis</h2>
+
+Baza danych używa MSsql, 
+Do testowania użyto MStests C# .NET,
+Do mockowania użyto pakietu MOQ,
+do upubliczniania API użyto ngrok,
+front wykonano w React native na platformę android.
+
 | Id    | Opis                                                         | Kroki Testowe                                                                                                                                                                                                                                                                                                                                                                                                  | Oczekiwany Wynik                                                                                                                            |
 |-------|--------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
 | TC_01 | Dodanie Komentarza                                           | 1.Zaloguje się na konto <br> 2.Wejdź w jedno z miast <br> 3.Wybierz jedno z miejsc <br> 4.Przesuń na dół okna <br> 5.Kliknij „Dodaj komentarz” <br> 6.Uzupełnij pola pamiętając o ocenie <br> 7.Zatwierdź dodanie komentarza <br>                                                                                                                                                                              | Po odświeżeniu nowo utworzony komentarz powinien być widoczny, pod miejscem do którego został dodany                                        |
