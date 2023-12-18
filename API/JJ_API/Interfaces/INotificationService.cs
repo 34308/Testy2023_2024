@@ -10,7 +10,7 @@ namespace JJ_API.Interfaces
     {
         public ApiResult<Results, object> GetNotificationForUser(int userId, string connectionString);
         public ApiResult<Results, object> SetNotificatioToChecked(int userId, int notificationId, string connectionString);
-        internal ApiResult<Results, object> CreateNotificationForCommenting(Notifications notification, int parentCommentId, SqlConnection connection, SqlTransaction transaction, int commentorId = 0);
-        internal ApiResult<Results, object> CreateNotificationForDeleting(Notifications notification, int commentId, int userId, SqlConnection connection, SqlTransaction transaction);
+        public ApiResult<Results, object> CreateNotificationForCommenting(Notifications notification, int parentCommentId, SqlConnection connection, SqlTransaction transaction, int commentorId = 0);
+        public ApiResult<Results, object> CreateNotificationForDeleting(Notifications notification, int commentId, int userId, SqlConnection connection, SqlTransaction transaction);
     }
 }

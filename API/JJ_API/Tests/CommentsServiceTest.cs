@@ -1,9 +1,12 @@
-﻿using JJ_API.Models.DAO;
+﻿using JJ_API.Interfaces;
+using JJ_API.Models.DAO;
 using JJ_API.Models.DTO;
 using JJ_API.Service.Buisneess;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using System.Diagnostics;
 using System.Dynamic;
+using System.Runtime.CompilerServices;
 
 namespace JJ_API.Tests
 {
@@ -14,6 +17,9 @@ namespace JJ_API.Tests
         private int _userId = 0;
         private int _userId2 = 0;
         private CommentService _commentService;
+        private Mock<ICommentRepository> _mockCommentRepo;
+        private Mock<INotificationService> _mockNotificationService;
+
         private int _touristSpotId = 0;
         private TestContext _testContextInstance;
         public TestContext TestContext
@@ -24,8 +30,10 @@ namespace JJ_API.Tests
         [TestInitialize]
         public void Prepare()
         {
-            
-            _commentService= new CommentService(new NotificationService());
+            _commentService = new CommentService(new NotificationService());
+            _mockNotificationService = new Mock<INotificationService>();
+
+            _mockCommentRepo = new Mock<ICommentRepository>();
 
             RegisterDto registerDto = new RegisterDto();
             registerDto.AvatarId = 1;
@@ -67,7 +75,24 @@ namespace JJ_API.Tests
             TouristSpotService.RemoveTouristSpots(new List<int>() { _touristSpotId }, _connectionString);
 
         }
+        [TestCategory("GetAllCommentsForUser")]
+        [TestMethod]
 
+        public void GetAllCommentsForUserJ()
+        {
+
+            int id = this._userId;
+            _mockCommentRepo.Setup(repo => repo.GetAllCommentsForUser(id, _connectionString)).Returns(new List<Comment>());
+            _mockCommentRepo.Setup(repo => repo.CheckIfUserExist(id, _connectionString)).Returns(id);
+
+            _commentService = new CommentService(_mockCommentRepo.Object, _mockNotificationService.Object);
+
+
+            var result = _commentService.GetAllCommentsForUser(id, _connectionString);
+
+
+            Assert.AreEqual(0, (int)result.Status);
+        }
         [TestCategory("GetAllCommentsForUser")]
         [TestMethod]
         [DataRow(1)]
@@ -75,13 +100,9 @@ namespace JJ_API.Tests
 
         public void GetAllCommentsForUserPositive(int id)
         {
-            // Arrange
 
-
-            // Act
             var result = _commentService.GetAllCommentsForUser(id, _connectionString);
 
-            // Assert
             Assert.AreEqual(0, (int)result.Status);
         }
         [TestCategory("GetAllCommentsForUser")]
@@ -91,13 +112,9 @@ namespace JJ_API.Tests
         [DataRow(int.MaxValue)]
         public void GetAllCommentsForUserNoUserFound(int id)
         {
-            // Arrange
 
-
-            // Act
             var result = _commentService.GetAllCommentsForUser(id, _connectionString);
 
-            // Assert
             Assert.AreEqual(31, (int)result.Status);
         }
         [TestCategory("GetCommentsForTouristSpot")]
@@ -106,13 +123,10 @@ namespace JJ_API.Tests
         [DataRow(3)]
         public void GetCommentsForTouristSpotPositive(int id)
         {
-            // Arrange
 
-
-            // Act
             var result = _commentService.GetCommentsForTouristSpot(id, _connectionString);
 
-            // Assert
+
             Assert.AreEqual(0, (int)result.Status);
         }
         [TestCategory("GetCommentsForTouristSpot")]
@@ -121,13 +135,10 @@ namespace JJ_API.Tests
         [DataRow(int.MaxValue)]
         public void GetCommentsForTouristSpotNegative(int id)
         {
-            // Arrange
 
-
-            // Act
             var result = _commentService.GetCommentsForTouristSpot(id, _connectionString);
 
-            // Assert
+
             Assert.AreEqual(4, (int)result.Status);
         }
         [TestCategory("GetCommentsForParent")]
@@ -135,7 +146,6 @@ namespace JJ_API.Tests
 
         public void GetCommentsForParentPositive()
         {
-            // Arrange
 
             CommentDto commentDto = new CommentDto();
             commentDto.TouristSpotId = 1;
@@ -145,10 +155,9 @@ namespace JJ_API.Tests
             commentDto.UserId = _userId;
 
             var resultAddComment = _commentService.AddComment(commentDto, _connectionString);
-            // Act
+
             var result = _commentService.GetCommentsForParent((int)resultAddComment.Data, _connectionString);
 
-            // Assert
             Assert.AreEqual(0, (int)result.Status);
         }
         [TestCategory("GetCommentsForParent")]
@@ -158,20 +167,16 @@ namespace JJ_API.Tests
         [DataRow(int.MaxValue)]
         public void GetCommentsForParentNegative(int id)
         {
-            // Arrange
 
-
-            // Act
             var result = _commentService.GetCommentsForParent(id, _connectionString);
 
-            // Assert
             Assert.AreEqual(33, (int)result.Status);
         }
         [TestCategory("AddCommentTest")]
         [TestMethod]
         public void AddGoodCommentTest()
         {
-            // Arrange
+
             CommentDto commentDto = new CommentDto();
             commentDto.TouristSpotId = 1;
             commentDto.Title = "Test";
@@ -179,44 +184,42 @@ namespace JJ_API.Tests
             commentDto.Score = 5;
             commentDto.UserId = _userId;
 
-            // Act
             var result = _commentService.AddComment(commentDto, _connectionString);
 
-            // Assert
             Assert.AreEqual(0, (int)result.Status);
         }
         [TestCategory("AddCommentTest")]
         [TestMethod]
         public void EmptyTitleAddCommentTest()
         {
-            // Arrange
+
             CommentDto commentDto = new CommentDto();
             commentDto.TouristSpotId = 1;
             commentDto.Title = "";
             commentDto.Description = "testDescription";
             commentDto.Score = 1;
             commentDto.UserId = 4;
-            // Act
+
             var result = _commentService.AddComment(commentDto, _connectionString);
 
-            // Assert
+
             Assert.AreEqual(30, (int)result.Status);
         }
         [TestCategory("AddCommentTest")]
         [TestMethod]
         public void EmptyDescriptionAddCommentTest()
         {
-            // Arrange
+
             CommentDto commentDto = new CommentDto();
             commentDto.TouristSpotId = 1;
             commentDto.Title = "test";
             commentDto.Description = "";
             commentDto.Score = 1;
             commentDto.UserId = 4;
-            // Act
+
             var result = _commentService.AddComment(commentDto, _connectionString);
 
-            // Assert
+
             Assert.AreEqual(30, (int)result.Status);
         }
         [TestCategory("AddCommentTest")]
@@ -226,36 +229,36 @@ namespace JJ_API.Tests
         [DataRow(int.MaxValue)]
         public void WrongScoreAddCommentTest(int score)
         {
-            // Arrange
+
             CommentDto commentDto = new CommentDto();
             commentDto.TouristSpotId = 1;
             commentDto.Title = "test";
             commentDto.Description = "";
             commentDto.Score = score;
             commentDto.UserId = 4;
-            // Act
+
             var result = _commentService.AddComment(commentDto, _connectionString);
 
-            // Assert
+
             Assert.AreEqual(30, (int)result.Status);
         }
         [TestCategory("AddCommentTest")]
         [TestMethod]
         public void NullTestCommentTest()
         {
-            // Arrange
+
             CommentDto commentDto = null;
-            // Act
+
             var result = _commentService.AddComment(commentDto, _connectionString);
 
-            // Assert
+
             Assert.AreEqual(34, (int)result.Status);
         }
         [TestCategory("RemoveCommentTest")]
         [TestMethod]
         public void RemoveCommentTest()
         {
-            // Arrange
+
             CommentDto commentDto = new CommentDto();
             commentDto.TouristSpotId = 1;
             commentDto.Title = "Some title";
@@ -263,11 +266,11 @@ namespace JJ_API.Tests
             commentDto.Score = 1;
             commentDto.UserId = this._userId;
             var resultAddingComment = _commentService.AddComment(commentDto, _connectionString);
-            
-            // Act
+
+
             var result = _commentService.RemoveComment(this._userId, new List<int> { (int)resultAddingComment.Data }, _connectionString);
 
-            // Assert
+
             Assert.AreEqual(0, (int)result.Status);
         }
         [TestCategory("CountScore")]
@@ -292,9 +295,9 @@ namespace JJ_API.Tests
             //ACT
             var resultAddComment = _commentService.AddComment(commentDto, _connectionString);
             var resultAddComment2 = _commentService.AddComment(commentDto2, _connectionString);
-            int result = _commentService.AsyncCalculateAndUpdateScore(this._touristSpotId,_connectionString).GetAwaiter().GetResult();
+            int result = _commentService.AsyncCalculateAndUpdateScore(this._touristSpotId, _connectionString).GetAwaiter().GetResult();
             //clean
-            var res= _commentService.RemoveComment(this._userId, new List<int> { (int)resultAddComment.Data, (int)resultAddComment2.Data }, _connectionString);
+            var res = _commentService.RemoveComment(this._userId, new List<int> { (int)resultAddComment.Data, (int)resultAddComment2.Data }, _connectionString);
             //Assert
             Assert.AreEqual(0, (int)resultAddComment.Status);
             Assert.AreEqual(0, (int)resultAddComment2.Status);
@@ -308,9 +311,9 @@ namespace JJ_API.Tests
         {
             int wrongId = -99;
             //ACT
-            int result = _commentService.AsyncCalculateAndUpdateScore(wrongId , _connectionString).GetAwaiter().GetResult();
+            int result = _commentService.AsyncCalculateAndUpdateScore(wrongId, _connectionString).GetAwaiter().GetResult();
             //Assert
-    
+
             Assert.AreEqual(0, result);
 
         }
@@ -335,7 +338,7 @@ namespace JJ_API.Tests
             //Act
             var resultAddComment = _commentService.AddComment(commentDto, _connectionString);
             var resultAddComment2 = _commentService.AddComment(commentDto2, _connectionString);
-            var result = TouristSpotService.GetTouristSpot(this._touristSpotId,this._connectionString);
+            var result = TouristSpotService.GetTouristSpot(this._touristSpotId, this._connectionString);
             //clean
             var res = _commentService.RemoveComment(this._userId, new List<int> { (int)resultAddComment.Data, (int)resultAddComment2.Data }, _connectionString);
             //Assert
@@ -344,7 +347,7 @@ namespace JJ_API.Tests
             Assert.AreEqual(0, (int)res.Status);
             Assert.AreEqual(0, (int)result.Status);
             Assert.IsNotNull(result.Data);
-            TouristSpot touristSpot = (TouristSpot) result.Data;
+            TouristSpot touristSpot = (TouristSpot)result.Data;
             Assert.AreEqual(3, touristSpot.Score);
         }
         [TestMethod]
@@ -368,7 +371,7 @@ namespace JJ_API.Tests
             commentDto2.ParentCommentId = (int)resultAddComment.Data;
 
             var resultAddComment2 = _commentService.AddCommentForComment(commentDto2, _connectionString);
-            
+
             Assert.IsNotNull(resultAddComment2);
             Assert.AreEqual(0, (int)resultAddComment2.Status);
 
@@ -401,8 +404,8 @@ namespace JJ_API.Tests
             editCommentDto.Description = "testDescriptionEdit";
             editCommentDto.Score = 3;
             editCommentDto.UserId = this._userId;
-            editCommentDto.Id = (int) resultAddComment.Data;
-            var result= _commentService.EditComment(editCommentDto, _connectionString);
+            editCommentDto.Id = (int)resultAddComment.Data;
+            var result = _commentService.EditComment(editCommentDto, _connectionString);
 
             Assert.AreEqual(0, (int)result.Status);
 
@@ -434,7 +437,7 @@ namespace JJ_API.Tests
             string title = "tytuł";
             string description = "description";
             int score = 1;
-            var resultValidate = CommentService.ValidateComment(title,description,score);
+            var resultValidate = CommentService.ValidateComment(title, description, score);
             Assert.IsTrue(resultValidate);
 
         }

@@ -70,21 +70,18 @@ namespace JJ_API.Service.Buisneess
         {
             try
             {
-                using (SqlConnection connection = new SqlConnection(connectionString))
+                var response = _commentRepository.CheckIfTouristSpotExist(id, connectionString);
+                if (response <= 0)
                 {
-                    connection.Open();
-                    var response = _commentRepository.CheckIfTouristSpotExist(id, connection);
-                    if (response <= 0)
-                    {
-                        return Response(Results.NotFoundAnyTouristSpots);
-                    }
-                    List<Comment> comments = _commentRepository.GetCommentsForTouristSpot(id, connection);
-                    foreach (var comment in comments)
-                    {
-                        comment.CommentChildNumber = _commentRepository.GetNumberOfChildComments(comment.Id, connection);
-                    }
-                    return Response(Results.OK, comments);
+                    return Response(Results.NotFoundAnyTouristSpots);
                 }
+                List<Comment> comments = _commentRepository.GetCommentsForTouristSpot(id, connectionString);
+                foreach (var comment in comments)
+                {
+                    comment.CommentChildNumber = _commentRepository.GetNumberOfChildComments(comment.Id, connectionString);
+                }
+                return Response(Results.OK, comments);
+
             }
             catch (Exception ex)
             {
@@ -95,21 +92,16 @@ namespace JJ_API.Service.Buisneess
         {
             try
             {
-                using (SqlConnection connection = new SqlConnection(connectionString))
+                if (0 >= _commentRepository.CheckIfParentExist(id, connectionString))
                 {
-                    connection.Open();
-
-                    if (0 >= _commentRepository.CheckIfParentExist(id, connection))
-                    {
-                        return Response(Results.CommentNofound);
-                    }
-                    List<Comment> comments = _commentRepository.GetCommentsForParent(id, connection);
-                    foreach (var comment in comments)
-                    {
-                        comment.CommentChildNumber = _commentRepository.GetNumberOfChildComments(comment.Id, connection);
-                    }
-                    return Response(Results.OK, comments);
+                    return Response(Results.CommentNofound);
                 }
+                List<Comment> comments = _commentRepository.GetCommentsForParent(id, connectionString);
+                foreach (var comment in comments)
+                {
+                    comment.CommentChildNumber = _commentRepository.GetNumberOfChildComments(comment.Id, connectionString);
+                }
+                return Response(Results.OK, comments);
             }
             catch (Exception ex)
             {
@@ -247,7 +239,7 @@ namespace JJ_API.Service.Buisneess
                     connection.Open();
                     using (SqlTransaction transaction = connection.BeginTransaction())
                     {
-                        int result = _commentRepository.UpdateComment(input,connection,transaction);
+                        int result = _commentRepository.UpdateComment(input, connection, transaction);
                         if (result == 0)
                         {
                             transaction.Rollback();
@@ -366,12 +358,10 @@ namespace JJ_API.Service.Buisneess
         {
             try
             {
-                using (SqlConnection connection = new SqlConnection(connectionString))
-                {
-                    connection.Open();
-                    List<Comment> comments = _commentRepository.GetAllComments(connection);
-                    return Response(Results.OK, comments);
-                }
+
+                List<Comment> comments = _commentRepository.GetAllComments(connectionString);
+                return Response(Results.OK, comments);
+
             }
             catch (Exception ex)
             {
@@ -380,20 +370,16 @@ namespace JJ_API.Service.Buisneess
         }
         public ApiResult<Results, object> GetAllCommentsForUser(int id, string connectionString)
         {
-
             try
             {
-                using (SqlConnection connection = new SqlConnection(connectionString))
+                var response = _commentRepository.CheckIfUserExist(id, connectionString);
+                if (response != id || response <= 0)
                 {
-                    connection.Open();
-                    var response = _commentRepository.CheckIfUserExist(id, connection);
-                    if (response != id || response <= 0)
-                    {
-                        return Response(Results.UserNotFound);
-                    }
-                    List<Comment> comments = _commentRepository.GetAllCommentsForUser(id, connection);
-                    return Response(Results.OK, comments);
+                    return Response(Results.UserNotFound);
                 }
+                List<Comment> comments = _commentRepository.GetAllCommentsForUser(id, connectionString);
+                return Response(Results.OK, comments);
+
             }
             catch (Exception ex)
             {

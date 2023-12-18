@@ -10,13 +10,13 @@ namespace JJ_API.Tests
         [TestMethod]
         public void CheckIfMouseIsCurse()
         {
-            // Arrange
+             
             string[] words=new string[] {"it","is","a","sentence","were","mouse","is","a","curse"} ;
 
-            // Act
+             
             var result = CensorshipService.CheckForCurses(words);
 
-            // Assert
+             
             Assert.IsTrue(!result.isClean, $"mouse is a course");
         }
 
@@ -28,10 +28,10 @@ namespace JJ_API.Tests
         {
 
            
-            // Act
+             
             var result = CensorshipService.CheckForCurses(words);
 
-            // Assert
+             
             Assert.IsTrue(result.isClean, $"no words no curse");
         }
     }
