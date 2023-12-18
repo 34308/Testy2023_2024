@@ -1,12 +1,7 @@
 ﻿using JJ_API.Models;
-using Dapper;
-using JJ_API.Models;
 using JJ_API.Models.DAO;
 using JJ_API.Models.DTO;
 using Microsoft.Data.SqlClient;
-using System.Security.Claims;
-using System.Xml.Linq;
-using Microsoft.AspNetCore.Components.Forms;
 using JJ_API.Interfaces;
 
 namespace JJ_API.Service.Buisneess

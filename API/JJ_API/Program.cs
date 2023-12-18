@@ -1,8 +1,5 @@
 using JJ_API.Service.Authenthication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.OpenApi.Models;
-using JJ_API;
 using JJ_API.Service;
 using JJ_API.Interfaces;
 using JJ_API.Service.Buisneess;

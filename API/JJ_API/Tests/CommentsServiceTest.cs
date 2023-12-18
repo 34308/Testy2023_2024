@@ -4,9 +4,6 @@ using JJ_API.Models.DTO;
 using JJ_API.Service.Buisneess;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System.Diagnostics;
-using System.Dynamic;
-using System.Runtime.CompilerServices;
 
 namespace JJ_API.Tests
 {

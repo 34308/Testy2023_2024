@@ -6,17 +6,17 @@ namespace JJ_API.Tests
     [TestClass]
     public class CensorshipServiceTest
     {
-        
+
         [TestMethod]
         public void CheckIfMouseIsCurse()
         {
-             
-            string[] words=new string[] {"it","is","a","sentence","were","mouse","is","a","curse"} ;
 
-             
+            string[] words = new string[] { "it", "is", "a", "sentence", "were", "mouse", "is", "a", "curse" };
+
+
             var result = CensorshipService.CheckForCurses(words);
 
-             
+
             Assert.IsTrue(!result.isClean, $"mouse is a course");
         }
 
@@ -26,12 +26,8 @@ namespace JJ_API.Tests
         [DataRow(null)]
         public void CheckWhatHappensForEmptyAndNull(string[] words)
         {
-
-           
-             
             var result = CensorshipService.CheckForCurses(words);
 
-             
             Assert.IsTrue(result.isClean, $"no words no curse");
         }
     }

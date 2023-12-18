@@ -3,12 +3,9 @@ using JJ_API.Interfaces;
 using JJ_API.Models.DAO;
 using JJ_API.Models.DTO;
 using JJ_API.Service.Buisneess;
-using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.Data.SqlClient;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System.Data.Common;
-using System.Transactions;
 
 namespace JJ_API.Tests
 {
