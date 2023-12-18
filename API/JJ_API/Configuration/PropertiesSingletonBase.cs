@@ -6,9 +6,9 @@ namespace JJ_API.Service
     public abstract class PropertiesSingletonBase
     {
         public static PropertiesSingleton Properties { get; set; } = new PropertiesSingleton();
-
-        public readonly static string path = string.Format("C:\\Users\\Kamil\\source\\repos\\Testy2023_2024\\API\\properties.xml");
-        public readonly static string pathBackup = string.Format("C:\\Users\\Kamil\\source\\repos\\Testy2023_2024\\API\\propertiesBackup.xml");
+        static string pathToAppdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        public readonly static string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "tests2023_2024", "properties.xml");
+        public readonly static string pathBackup = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "tests2023_2024", "properties.xml");
         protected internal static byte[] Encrypt(string code)
         {
             System.Security.Cryptography.DESCryptoServiceProvider crypt = new System.Security.Cryptography.DESCryptoServiceProvider();
