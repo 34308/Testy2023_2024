@@ -1,11 +1,13 @@
 <h1>Testy 2023/2024 </h1>
 <h2>Opis</h2>
 
-Baza danych używa MSsql, 
-Do testowania użyto MStests C# .NET,
-Do mockowania użyto pakietu MOQ,
-do upubliczniania API użyto ngrok,
-front wykonano w React native na platformę android.
+Baza danych używa MSsql, <br>
+Do testowania użyto MStests C# .NET,<br>
+Do mockowania użyto pakietu MOQ,<br>
+do upubliczniania API użyto ngrok,<br>
+front wykonano w React native na platformę android.<br>
+
+<h2>Kroki testowe</h2>
 
 | Id    | Opis                                                         | Kroki Testowe                                                                                                                                                                                                                                                                                                                                                                                                  | Oczekiwany Wynik                                                                                                                            |
 |-------|--------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
