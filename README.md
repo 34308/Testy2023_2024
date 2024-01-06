@@ -1,6 +1,6 @@
 <h1>Akademia Tarnowska </h1>
 <h1>Kurs</h1>
-<h2>Testowanie  i jakość oprogramowiania / Projekt </h2>
+<h5>Testowanie  i jakość oprogramowiania / Projekt </h5>
 
 
 
