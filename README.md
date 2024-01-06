@@ -1,3 +1,9 @@
+<h1>Akademia Tarnowska </h1>
+<h1>Kurs</h1>
+<h2>Testowanie  i jakość oprogramowiania / Projekt </h2>
+
+
+
 <h1>Testy 2023/2024 </h1>
 <h2>Opis</h2>
 
@@ -6,6 +12,15 @@ Do testowania użyto MStests C# .NET,<br>
 Do mockowania użyto pakietu MOQ,<br>
 do upubliczniania API użyto ngrok,<br>
 front wykonano w React native na platformę android.<br>
+
+
+
+
+
+
+
+
+
 
 <h2>Kroki testowe</h2>
 
