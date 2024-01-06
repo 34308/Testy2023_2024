@@ -2,22 +2,45 @@
 <h1>Kurs</h1>
 <h5>Testowanie  i jakość oprogramowiania / Projekt </h5>
 
+<h1>Autor</h1>
+<h5>Kamil Martyka</h5>
 
+<h1>Temat projektu</h1>
 
-<h1>Testy 2023/2024 </h1>
-<h2>Opis</h2>
+<h5>Testowanie systemu komentarzy i połączonych systemów </h5>
 
-Baza danych używa MSsql, <br>
+<h2>Opis Projektu</h2>
+
+Projekt ten testuje system komentarzy przeznaczony do większego projektu (przewodnika turystycznego). Projekt zawiera testowanie operacji na komentarzu, systemu powiadomień, systemu cenzorującego, oraz powiązanych funkcji systemu komentarzy używanych w innych częsciach projektu.<br>
+
+Komentarz - wiadomośc pozostawiona przez użytkownika pod atrakcją turystyczną,  lub komentarzem innego użytkownika. Komentarz może być zostawiony tylko przez użytkownika zalogowanego.<br>
+
+Powiadomienia - jest to wiadomośc wysyłana do użytkownika w momencie gdy:<br>
+-komentarz został skomentowany przez innego użytkownika<br>
+-komentarz został usunięty przez administratora<br>
+-komentarz został zeedytowany/ocenzurowany przez administratora<br>
+
+<h1>Uruchomienie projektu</h1>
+
+<h4>API</h4>
+Do pełnego i poprawnego działania projektu wymagane jest:<br>
+-server sql (mssql)<br>
+-plik bazydanych dodany do repozytorium.<br>
+
+<h4>Aplikacja mobilna</h4>
+Do pełnego i poprawnego działania projektu wymagane jest:<br>
+-ngrock(bądź inny program, służący do upublicznienia localhost, w celu obejścia cors)<br>
+
 Do testowania użyto MStests C# .NET,<br>
 Do mockowania użyto pakietu MOQ,<br>
-do upubliczniania API użyto ngrok,<br>
 front wykonano w React native na platformę android.<br>
 
+Po zainstalowaniu bazy danych, należy uruchomić api (komenda nie jest wymagana). Api znajdować się bedzie pod adresem https://localhost:7225/swagger/index.html.
 
+<h1>Uruchomienie testów jednostkowych i integracyjnych</h1>
+testy można uruchamiać przy pomocy UI. Wymagany do uruchomienia testów jest Mstest oraz Mstet framework, powinny dodać się one automatycznie wraz z projektem, wrazie problemów należy dodać je za pomoca usługi nugget. Ui umożliwiające obsługę testów znajduję się w zakładce "Test". <br>
 
-
-
-
+<h1>Dokumentacja API</h1>
 
 
 
