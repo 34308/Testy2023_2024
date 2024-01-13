@@ -60,7 +60,8 @@ Zwraca:
 "UpdatedAt":"",
 "Avatar":"",
 "Username":"",
-"CommentChildNumber":0}]```
+"CommentChildNumber":0}]
+```
 
 - Adres usługi: /Comment/AllComentsForParent/{id},<br>
 - Typ: Get<br>
