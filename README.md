@@ -24,6 +24,7 @@ Powiadomienia - jest to wiadomośc wysyłana do użytkownika w momencie gdy:<br>
 
 <h4>API</h4>
 Do pełnego i poprawnego działania projektu wymagane jest:<br>
+
 - server sql (mssql)<br>
 - plik bazydanych dodany do repozytorium.<br>
 
