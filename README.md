@@ -64,7 +64,8 @@ Zwraca: ```json
 - Adres usługi: /Comment/AllComentsForParent/{id},<br>
 - Typ: Get<br>
 - Przyjmuje: id - numer identyfikacyjny kometarza dla którego chcemy pobrać podkomentarze.<br>
-Zwraca:  ```json[{
+Zwraca:
+- ```json[{
 "Id":0,
 "Title":"",
 "Description":"",
@@ -76,7 +77,8 @@ Zwraca:  ```json[{
 "UpdatedAt":"",
 "Avatar":"",
 "Username":"",
-"CommentChildNumber":0}]```<br>
+"CommentChildNumber":0}]
+```<br>
 
 - Adres usługi: /Comment/remove/{userId}/{id},<br>
 - Typ: Post<br>
