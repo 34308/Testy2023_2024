@@ -94,7 +94,8 @@ Zwraca: Status OK/Status błędu<br>
       "title": "string",
       "description": "string",
       "score": 0,  "userId": 0,
-      "touristSpotId": 0}
+      "touristSpotId": 0
+     }
      ```<br>
 Zwraca: Status OK/Status błędu<br>
 
