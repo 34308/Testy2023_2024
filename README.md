@@ -87,7 +87,7 @@ Zwraca:
 ```
 
 - Adres usługi: /Comment/remove/{userId}/{id},<br>
-- Typ: Post<br>
+- Typ: Delete<br>
 - Przyjmuje: <br>
 ```
   - userId - numer identyfikacyjny użytkownika dalktórego usuwamy komentarz.<br>
