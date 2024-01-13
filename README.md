@@ -48,7 +48,7 @@ testy można uruchamiać przy pomocy UI. Wymagany do uruchomienia testów jest M
 -Przyjmuje: id - numer identyfikacyjny miejsca turystycznego dla którego chcemy pobrać komentarze.<br>
 Zwraca: [{"Id":0,"Title":"","Description":"","Score":0,"UserId":,"TouristSpotId":,"ParentCommentId":,"CreatedAt":"","UpdatedAt":"","Avatar":"","Username":"","CommentChildNumber":0}]<br>
 
--Adres usługi: /Comment/AllComentsForParent/{id},<br>
+-Adres usługi: >/Comment/AllComentsForParent/{id},<br>
 -Typ: Get<br>
 -Przyjmuje: id - numer identyfikacyjny kometarza dla którego chcemy pobrać podkomentarze.<br>
 Zwraca: [{"Id":0,"Title":"","Description":"","Score":0,"UserId":,"TouristSpotId":,"ParentCommentId":,"CreatedAt":"","UpdatedAt":"","Avatar":"","Username":"","CommentChildNumber":0}]<br>
