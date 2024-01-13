@@ -85,8 +85,10 @@ Zwraca:
 - Adres usługi: /Comment/remove/{userId}/{id},<br>
 - Typ: Post<br>
 - Przyjmuje: <br>
+```
   - userId - numer identyfikacyjny użytkownika dalktórego usuwamy komentarz.<br>
   - id - numer identyfikacyjny kometarza.<br>
+```
 Zwraca: Status OK/Status błędu<br>
 
 - Adres usługi: /Comment/add/{userId},<br>
