@@ -116,10 +116,10 @@ Zwraca:Status OK / Status Błedu<br>
 | TC_10 | Edycja komentarza na pusty                                   | 1.Zaloguje się na konto użytkownika <br> 2.Przejdź do sekcji komentarzy jednego z miejsc <br> 3.Znajdź jeden z dodanych komentarzy lub utwórz nowy komentarz <br> 4.Przejdź do edycji komentarza <br> 5.Usuń tekst z pola „Tytuł” <br> 6.Zatwierdź edycję <br>                                                                                                                                                 | Komentarz nie powinien zostać ze edytowany, informacja o błędzie po zatwierdzeniu zmiany powinna pojawić się u góry ekranu.                 |
 
 <h1>Technologie użyte w projekcie</h1>
--.NET 7.0
--Swagger
--MSSQL
--React Native
--CSS
--Android
--C#
+- .NET 7.0 <br>
+- Swagger <br>
+- MSSQL <br>
+- React Native <br>
+- CSS <br>
+- Android <br>
+- C# <br>
