@@ -200,7 +200,7 @@ Zwraca:Status OK / Status Błedu<br>
 | TC_09 | Dodanie komentarza z oceną równą 0                           | 1.Zaloguje się na konto użytkownika  <br> 2.Przejdź do sekcji komentarzy jednego z miejsc <br> 3.Otwórz dodawanie komentarza <br> 4.Uzupełnij pola tytuł, opis. Ocena powinna pozostać na 0. <br>  5.zatwierdź dodawanie komentarza <br>                                                                                                                                                                       | Komentarz nie powinien zostać dodany, informacja o błędzie przy wypełnianiu powinna być widoczna u góry ekranu. Minimalna ocena wynosi 1.   |
 | TC_10 | Edycja komentarza na pusty                                   | 1.Zaloguje się na konto użytkownika <br> 2.Przejdź do sekcji komentarzy jednego z miejsc <br> 3.Znajdź jeden z dodanych komentarzy lub utwórz nowy komentarz <br> 4.Przejdź do edycji komentarza <br> 5.Usuń tekst z pola „Tytuł” <br> 6.Zatwierdź edycję <br>                                                                                                                                                 | Komentarz nie powinien zostać ze edytowany, informacja o błędzie po zatwierdzeniu zmiany powinna pojawić się u góry ekranu.                 |
 
-<h1>Technologie użyte w projekcie</h1>
+<h1>Technologie użyte w projekcie:</h1>
 - .NET 7.0 <br>
 - Swagger <br>
 - MSSQL <br>
