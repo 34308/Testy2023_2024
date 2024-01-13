@@ -29,8 +29,8 @@ Do pełnego i poprawnego działania projektu wymagane jest:<br>
 
 <h4>Aplikacja mobilna</h4>
 Do pełnego i poprawnego działania projektu wymagane jest:<br>
-- ngrock(bądź inny program, służący do upublicznienia localhost, w celu obejścia cors)<br>
 
+- ngrock(bądź inny program, służący do upublicznienia localhost, w celu obejścia cors)<br>
 - Do testowania użyto MStests C# .NET,<br>
 - Do mockowania użyto pakietu MOQ,<br>
 - front wykonano w React native na platformę android.<br>
