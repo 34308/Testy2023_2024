@@ -209,3 +209,5 @@ Zwraca:Status OK / Status Błedu<br>
 - Android<br>
 - C#<br>
 <h1>Prezentacja aplikacji</h1>
+link do filmów prezentujących działanie aplikacji:
+- https://drive.google.com/drive/folders/1TaFZVkglV4BGKpoMQdQhOQsmFUscJyOV?usp=sharing
