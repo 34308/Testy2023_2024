@@ -17,6 +17,8 @@ namespace JJ_API.Interfaces
         public List<Comment> GetCommentsForParent(int id, string connectionString);
         public int CountCommentsForSpot(CommentDto comment,SqlConnection connection,SqlTransaction transaction);
         public int InsertComment(CommentDto comment,SqlConnection connection,SqlTransaction transaction);
+        public int InsertCommentForComment(CommentForCommentDto comment, SqlConnection connection, SqlTransaction transaction);
+
         public int CountUserCommentsFromLast2Min(int userId, SqlConnection connection);
         public int DeleteComment(int id, SqlConnection connection, SqlTransaction transaction);
         public int GetUserIdFromComment(int id, SqlConnection connection, SqlTransaction transaction);

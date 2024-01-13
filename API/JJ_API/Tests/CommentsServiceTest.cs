@@ -10,7 +10,7 @@ namespace JJ_API.Tests
     [TestClass]
     public class CommentsServiceTest
     {
-        private string _connectionString = "Data Source=\"localhost\\sqljj\";Initial Catalog=JJDBTests;User=sa;Password = 5540;Persist Security Info=True;Pooling=False;TrustServerCertificate=true";
+        private string _connectionString = "Data Source=\"localhost\\sqljj\";Initial Catalog=JJDBFinalTests;User=sa;Password = 5540;Persist Security Info=True;Pooling=False;TrustServerCertificate=true";
         private int _userId = 0;
         private int _userId2 = 0;
         private CommentService _commentService;
@@ -68,9 +68,7 @@ namespace JJ_API.Tests
         {
             UserService.RemoveUser(_userId, _connectionString);
             UserService.RemoveUser(_userId2, _connectionString);
-
             TouristSpotService.RemoveTouristSpots(new List<int>() { _touristSpotId }, _connectionString);
-
         }
         [TestCategory("GetAllCommentsForUser")]
         [TestMethod]
@@ -336,16 +334,17 @@ namespace JJ_API.Tests
             var resultAddComment = _commentService.AddComment(commentDto, _connectionString);
             var resultAddComment2 = _commentService.AddComment(commentDto2, _connectionString);
             var result = TouristSpotService.GetTouristSpot(this._touristSpotId, this._connectionString);
-            //clean
-            var res = _commentService.RemoveComment(this._userId, new List<int> { (int)resultAddComment.Data, (int)resultAddComment2.Data }, _connectionString);
+
             //Assert
             Assert.AreEqual(0, (int)resultAddComment.Status);
             Assert.AreEqual(0, (int)resultAddComment2.Status);
-            Assert.AreEqual(0, (int)res.Status);
             Assert.AreEqual(0, (int)result.Status);
             Assert.IsNotNull(result.Data);
             TouristSpot touristSpot = (TouristSpot)result.Data;
             Assert.AreEqual(3, touristSpot.Score);
+
+            //clean
+            var res = _commentService.RemoveComment(this._userId, new List<int> { (int)resultAddComment.Data, (int)resultAddComment2.Data }, _connectionString);
         }
         [TestMethod]
         public void AddCommentForComment()

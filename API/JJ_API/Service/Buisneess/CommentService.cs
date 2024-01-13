@@ -190,7 +190,7 @@ namespace JJ_API.Service.Buisneess
                     using (SqlTransaction transaction = connection.BeginTransaction())
                     {
 
-                        id = _commentRepository.InsertComment(input, connection, transaction);
+                        id = _commentRepository.InsertCommentForComment(input, connection, transaction);
                         if (id == 0)
                         {
                             transaction.Rollback();

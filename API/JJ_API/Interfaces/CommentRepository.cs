@@ -169,7 +169,13 @@ namespace JJ_API.Interfaces
 
             return connection.QueryFirstOrDefault<int>(q_insertComment, new { title = input.Title, description = input.Description, score = input.Score, userid = input.UserId, touristspotid = input.TouristSpotId, date = DateTime.Now, commentforcommentid = 0 }, transaction);
         }
+        public int InsertCommentForComment(CommentForCommentDto input, SqlConnection connection, SqlTransaction transaction)
+        {
+            string q_insertComment = "INSERT INTO Comment (Title,Description,Score,UserId,TouristSpotId,CreatedAt,ParentCommentId ) " +
+             "OUTPUT INSERTED.Id VALUES (@title,@description,@score,@userid,@touristspotid,@date,@commentforcommentid) ";
 
+            return connection.QueryFirstOrDefault<int>(q_insertComment, new { title = input.Title, description = input.Description, score = input.Score, userid = input.UserId, touristspotid = input.TouristSpotId, date = DateTime.Now, commentforcommentid = input.ParentCommentId }, transaction);
+        }
         public int UpdateComment(CommentDto input, SqlConnection connection, SqlTransaction transaction)
         {
             string q_updateComment = "UPDATE Comment SET Title=@title,Description=@description,Score=@score,UpdatedAt=@date WHERE Id=@id";
