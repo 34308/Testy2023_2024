@@ -100,7 +100,7 @@ Zwraca: Status OK/Status błędu<br>
       "score": 0,  "userId": 0,
       "touristSpotId": 0
      }
-     ```<br>
+     ```
 Zwraca: Status OK/Status błędu<br>
 
 - Adres usługi: /Comment/comment/{userId},<br>
@@ -115,7 +115,7 @@ Zwraca: Status OK/Status błędu<br>
     "userId": 0,
      "touristSpotId": 0,
      "parentCommentId": 0}
-    ```<br>
+    ```
 
 - Adres usługi: /Comment/update/{userId},<br>
 - Typ: Post<br>
