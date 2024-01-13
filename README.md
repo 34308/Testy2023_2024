@@ -67,7 +67,8 @@ Zwraca:
 - Typ: Get<br>
 - Przyjmuje: id - numer identyfikacyjny kometarza dla którego chcemy pobrać podkomentarze.<br>
 Zwraca:
-```json[{
+```json
+[{
 "Id":0,
 "Title":"",
 "Description":"",
@@ -79,7 +80,8 @@ Zwraca:
 "UpdatedAt":"",
 "Avatar":"",
 "Username":"",
-"CommentChildNumber":0}]
+"CommentChildNumber":0
+}]
 ```
 
 - Adres usługi: /Comment/remove/{userId}/{id},<br>
@@ -95,7 +97,8 @@ Zwraca: Status OK/Status błędu<br>
 - Typ: Post<br>
 - Przyjmuje: <br>
   - userId id dodającego uzytkownika (potrzebne do dodatkowej obsługi autoryzacji)
-  -  ```json{
+  -  ```json
+     {
       "id": 0,
       "title": "string",
       "description": "string",
@@ -109,34 +112,41 @@ Zwraca: Status OK/Status błędu<br>
 - Typ: Post<br>
 - Przyjmuje: <br>
   - userId id dodającego uzytkownika (potrzebne do dodatkowej obsługi autoryzacji)
-  - ```json{
+  - ```json
+    {
     "id": 0,
      "title": "string",
      "description": "string",
     "score": 0,
     "userId": 0,
      "touristSpotId": 0,
-     "parentCommentId": 0}
+     "parentCommentId": 0
+    }
     ```
 
 - Adres usługi: /Comment/update/{userId},<br>
 - Typ: Post<br>
 - Przyjmuje: <br>
   - userId id dodającego uzytkownika (potrzebne do dodatkowej obsługi autoryzacji)
-  -  ```json{
+  -  ```json
+     {
      "id": 0,
      "title": "string",
      "description": "string",
      "score": 0,
      "userId": 0,
-     "touristSpotId": 0}```<br>
+     "touristSpotId": 0
+     }
+     ```
 
 - Adres usługi: /Comment/AllComentsForUser/{userId},<br>
 - Typ: Get<br>
 - Przyjmuje: <br>
   - userId numer identyfikacyjny użytkownika 
-Zwraca:  ```json[
-{"Id":0,"Title":"",
+Zwraca:
+```json
+[{
+"Id":0,"Title":"",
 "Description":"",
 "Score":0,
 "UserId":,
@@ -146,18 +156,24 @@ Zwraca:  ```json[
 "UpdatedAt":"",
 "Avatar":"",
 "Username":"",
-"CommentChildNumber":0}]```<br>
+"CommentChildNumber":0
+}]
+```
 
 - Adres usługi: /User/getUserNotifications/{UserId},<br>
 - Typ: Get<br>
 - Przyjmuje: <br>
   - userId numer identyfikacyjny użytkownika 
-Zwraca:  ```json[{
+Zwraca:
+```json
+[{
 "id": 0,
 "userId": 0,
 "description": null,
 "createdOn": "0001-01-01T00:00:00",
-"checked": false}]```<br>
+"checked": false
+}]
+```
 
 - Adres usługi: /User/setUserNotification/{UserId}/{Nid},<br>
 - Typ: Get<br>
