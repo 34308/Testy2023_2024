@@ -31,9 +31,9 @@ Do pełnego i poprawnego działania projektu wymagane jest:<br>
 Do pełnego i poprawnego działania projektu wymagane jest:<br>
 - ngrock(bądź inny program, służący do upublicznienia localhost, w celu obejścia cors)<br>
 
-Do testowania użyto MStests C# .NET,<br>
-Do mockowania użyto pakietu MOQ,<br>
-front wykonano w React native na platformę android.<br>
+- Do testowania użyto MStests C# .NET,<br>
+- Do mockowania użyto pakietu MOQ,<br>
+- front wykonano w React native na platformę android.<br>
 
 Po zainstalowaniu bazy danych, należy uruchomić api (komenda nie jest wymagana). Api znajdować się bedzie pod adresem https://localhost:7225/swagger/index.html.
 
