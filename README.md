@@ -47,7 +47,8 @@ testy można uruchamiać przy pomocy UI. Wymagany do uruchomienia testów jest M
 - Adres usługi: /Comment/AllComentsForSpot/{id},<br>
 - Typ: Get<br>
 - Przyjmuje: id - numer identyfikacyjny miejsca turystycznego dla którego chcemy pobrać komentarze.<br>
-Zwraca: ```json[{"Id":0,
+Zwraca: ```json[{
+"Id":0,
 "Title":"",
 "Description":"",
 "Score":0,
@@ -58,7 +59,7 @@ Zwraca: ```json[{"Id":0,
 "UpdatedAt":"",
 "Avatar":"",
 "Username":"",
-"CommentChildNumber":0}]```<br>
+"CommentChildNumber":0}]```
 
 - Adres usługi: /Comment/AllComentsForParent/{id},<br>
 - Typ: Get<br>
