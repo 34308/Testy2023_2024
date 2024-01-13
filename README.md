@@ -16,20 +16,20 @@ Projekt ten testuje system komentarzy przeznaczony do większego projektu (przew
 Komentarz - wiadomośc pozostawiona przez użytkownika pod atrakcją turystyczną,  lub komentarzem innego użytkownika. Komentarz może być zostawiony tylko przez użytkownika zalogowanego.<br>
 
 Powiadomienia - jest to wiadomośc wysyłana do użytkownika w momencie gdy:<br>
--komentarz został skomentowany przez innego użytkownika<br>
--komentarz został usunięty przez administratora<br>
--komentarz został zeedytowany/ocenzurowany przez administratora<br>
+- komentarz został skomentowany przez innego użytkownika<br>
+- komentarz został usunięty przez administratora<br>
+- komentarz został zeedytowany/ocenzurowany przez administratora<br>
 
 <h1>Uruchomienie projektu</h1>
 
 <h4>API</h4>
 Do pełnego i poprawnego działania projektu wymagane jest:<br>
--server sql (mssql)<br>
--plik bazydanych dodany do repozytorium.<br>
+- server sql (mssql)<br>
+- plik bazydanych dodany do repozytorium.<br>
 
 <h4>Aplikacja mobilna</h4>
 Do pełnego i poprawnego działania projektu wymagane jest:<br>
--ngrock(bądź inny program, służący do upublicznienia localhost, w celu obejścia cors)<br>
+- ngrock(bądź inny program, służący do upublicznienia localhost, w celu obejścia cors)<br>
 
 Do testowania użyto MStests C# .NET,<br>
 Do mockowania użyto pakietu MOQ,<br>
@@ -43,59 +43,59 @@ testy można uruchamiać przy pomocy UI. Wymagany do uruchomienia testów jest M
 <h1>Dokumentacja API</h1>
   Każda z funkcji API zwraca wewnętzny obiekt serwera który zawiera status, wiadomość, obiekt. <br>
 
--Adres usługi: /Comment/AllComentsForSpot/{id},<br>
--Typ: Get<br>
--Przyjmuje: id - numer identyfikacyjny miejsca turystycznego dla którego chcemy pobrać komentarze.<br>
+- Adres usługi: /Comment/AllComentsForSpot/{id},<br>
+- Typ: Get<br>
+- Przyjmuje: id - numer identyfikacyjny miejsca turystycznego dla którego chcemy pobrać komentarze.<br>
 Zwraca: [{"Id":0,"Title":"","Description":"","Score":0,"UserId":,"TouristSpotId":,"ParentCommentId":,"CreatedAt":"","UpdatedAt":"","Avatar":"","Username":"","CommentChildNumber":0}]<br>
 
--Adres usługi: /Comment/AllComentsForParent/{id},<br>
--Typ: Get<br>
--Przyjmuje: id - numer identyfikacyjny kometarza dla którego chcemy pobrać podkomentarze.<br>
+- Adres usługi: /Comment/AllComentsForParent/{id},<br>
+- Typ: Get<br>
+- Przyjmuje: id - numer identyfikacyjny kometarza dla którego chcemy pobrać podkomentarze.<br>
 Zwraca: [{"Id":0,"Title":"","Description":"","Score":0,"UserId":,"TouristSpotId":,"ParentCommentId":,"CreatedAt":"","UpdatedAt":"","Avatar":"","Username":"","CommentChildNumber":0}]<br>
 
--Adres usługi: /Comment/remove/{userId}/{id},<br>
--Typ: Post<br>
--Przyjmuje: <br>
-  -userId - numer identyfikacyjny użytkownika dalktórego usuwamy komentarz.<br>
-  -id - numer identyfikacyjny kometarza.<br>
+- Adres usługi: /Comment/remove/{userId}/{id},<br>
+- Typ: Post<br>
+- Przyjmuje: <br>
+  - userId - numer identyfikacyjny użytkownika dalktórego usuwamy komentarz.<br>
+  - id - numer identyfikacyjny kometarza.<br>
 Zwraca: Status OK/Status błędu<br>
 
--Adres usługi: /Comment/add/{userId},<br>
--Typ: Post<br>
--Przyjmuje: <br>
-  -userId id dodającego uzytkownika (potrzebne do dodatkowej obsługi autoryzacji)
-  -{  "id": 0,  "title": "string",  "description": "string",  "score": 0,  "userId": 0,  "touristSpotId": 0}<br>
+- Adres usługi: /Comment/add/{userId},<br>
+- Typ: Post<br>
+- Przyjmuje: <br>
+  - userId id dodającego uzytkownika (potrzebne do dodatkowej obsługi autoryzacji)
+  - {  "id": 0,  "title": "string",  "description": "string",  "score": 0,  "userId": 0,  "touristSpotId": 0}<br>
 Zwraca: Status OK/Status błędu<br>
 
--Adres usługi: /Comment/comment/{userId},<br>
--Typ: Post<br>
--Przyjmuje: <br>
-  -userId id dodającego uzytkownika (potrzebne do dodatkowej obsługi autoryzacji)
-  -{ "id": 0, "title": "string", "description": "string", "score": 0,  "userId": 0,  "touristSpotId": 0,  "parentCommentId": 0}<br>
+- Adres usługi: /Comment/comment/{userId},<br>
+- Typ: Post<br>
+- Przyjmuje: <br>
+  - userId id dodającego uzytkownika (potrzebne do dodatkowej obsługi autoryzacji)
+  - { "id": 0, "title": "string", "description": "string", "score": 0,  "userId": 0,  "touristSpotId": 0,  "parentCommentId": 0}<br>
 
--Adres usługi: /Comment/update/{userId},<br>
--Typ: Post<br>
--Przyjmuje: <br>
-  -userId id dodającego uzytkownika (potrzebne do dodatkowej obsługi autoryzacji)
-  -{ "id": 0, "title": "string","description": "string","score": 0, "userId": 0,"touristSpotId": 0}<br>
+- Adres usługi: /Comment/update/{userId},<br>
+- Typ: Post<br>
+- Przyjmuje: <br>
+  - userId id dodającego uzytkownika (potrzebne do dodatkowej obsługi autoryzacji)
+  - { "id": 0, "title": "string","description": "string","score": 0, "userId": 0,"touristSpotId": 0}<br>
 
--Adres usługi: /Comment/AllComentsForUser/{userId},<br>
--Typ: Get<br>
--Przyjmuje: <br>
-  -userId numer identyfikacyjny użytkownika 
+- Adres usługi: /Comment/AllComentsForUser/{userId},<br>
+- Typ: Get<br>
+- Przyjmuje: <br>
+  - userId numer identyfikacyjny użytkownika 
 Zwraca: [{"Id":0,"Title":"","Description":"","Score":0,"UserId":,"TouristSpotId":,"ParentCommentId":,"CreatedAt":"","UpdatedAt":"","Avatar":"","Username":"","CommentChildNumber":0}]<br>
 
--Adres usługi: /User/getUserNotifications/{UserId},<br>
--Typ: Get<br>
--Przyjmuje: <br>
-  -userId numer identyfikacyjny użytkownika 
+- Adres usługi: /User/getUserNotifications/{UserId},<br>
+- Typ: Get<br>
+- Przyjmuje: <br>
+  - userId numer identyfikacyjny użytkownika 
 Zwraca: [{   "id": 0,  "userId": 0,  "description": null,   "createdOn": "0001-01-01T00:00:00",   "checked": false}]<br>
 
--Adres usługi: /User/setUserNotification/{UserId}/{Nid},<br>
--Typ: Get<br>
--Przyjmuje: <br>
-  -userId numer identyfikacyjny użytkownika 
-  -Nid - numerIdentyfikacyjny powiadomienia
+- Adres usługi: /User/setUserNotification/{UserId}/{Nid},<br>
+- Typ: Get<br>
+- Przyjmuje: <br>
+  - userId numer identyfikacyjny użytkownika 
+  - Nid - numerIdentyfikacyjny powiadomienia
 Zwraca:Status OK / Status Błedu<br>
 
 
